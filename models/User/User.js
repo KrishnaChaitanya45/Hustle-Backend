@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema({
   bio: {
     type: String,
   },
-  intrests: {
+  interests: {
     type: Array,
   },
   assignedTasks: [
