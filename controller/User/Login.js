@@ -48,6 +48,7 @@ const loginUser = async (req, res) => {
 };
 // };
 const getASingleUser = async (req, res) => {
+  console.log("request recieved");
   const id = mongoose.Types.ObjectId(req.user);
   // client.get("user", async (err, data) => {
   //   if (err) throw err;

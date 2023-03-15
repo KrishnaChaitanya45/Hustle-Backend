@@ -7,6 +7,6 @@ const setCache = require("../../middleware/Cache");
 
 router.route("/register/").post(createNewUser);
 router.route("/login/").post(loginUser);
-router.route("/login/:id").get(setCache, authenticateJWT, getASingleUser);
+router.route("/login/user-details").get(authenticateJWT, getASingleUser);
 
 module.exports = router;
