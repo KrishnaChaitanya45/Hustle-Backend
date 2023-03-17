@@ -28,6 +28,7 @@ const storage = multer.diskStorage({
 });
 app.use(multer({ storage: storage }).single("image"));
 app.use(express.json());
+app.use("/uploads", express.static(__dirname + "/tmp"));
 app.use("/uploads", express.static("tmp"));
 app.use("/api/v1/tasks/", authenticateJWT, MainTask);
 app.use("/api/v1/auth/", User);
