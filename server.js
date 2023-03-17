@@ -13,7 +13,7 @@ require("dotenv").config();
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: true,
     credentials: true,
   })
 );
@@ -28,7 +28,6 @@ const storage = multer.diskStorage({
 });
 app.use(multer({ storage: storage }).single("image"));
 app.use(express.json());
-
 app.use("/uploads", express.static(path.resolve(__dirname, "uploads")));
 app.use("/api/v1/tasks/", authenticateJWT, MainTask);
 app.use("/api/v1/auth/", User);

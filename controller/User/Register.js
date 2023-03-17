@@ -15,6 +15,7 @@ const createNewUser = async (req, res) => {
   const { email, password, username, name, bio, interests, targetTasks, upto } =
     req.body;
   let token;
+
   try {
     const userExists = await UserModel.find({
       email: email,
@@ -54,6 +55,7 @@ const createNewUser = async (req, res) => {
             .status(201)
             .json({ msg: "User Created..!", user: user, token: token });
         } catch (error) {
+          console.log("no image");
           const hashedPassword = await bcrypt.hash(password, 16);
           const user = await UserModel.create({
             email,
@@ -76,7 +78,9 @@ const createNewUser = async (req, res) => {
           }
           console.log(token);
           res.cookie("DearDiaryAuthentication", token);
-          return res.status(222).json({ msg: "Creation failed" });
+          return res
+            .status(222)
+            .json({ msg: "User Created", user: user, token: token });
         }
       } catch (error) {
         return res.status(500).json({ msg: error });
