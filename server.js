@@ -10,6 +10,13 @@ const authenticateJWT = require("./middleware/Auth");
 const app = express();
 const multer = require("multer");
 require("dotenv").config();
+const fileupload = require("express-fileupload");
+app.use(
+  fileupload({
+    useTempFiles: true,
+    tempFileDir: "/tmp",
+  })
+);
 app.use(cookieParser());
 app.use(
   cors({
