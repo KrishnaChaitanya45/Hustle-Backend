@@ -19,7 +19,7 @@ app.use(
 );
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads"); // we should create the  folder for uploads
+    cb(null, "/tmp"); // we should create the  folder for uploads
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -28,7 +28,7 @@ const storage = multer.diskStorage({
 });
 app.use(multer({ storage: storage }).single("image"));
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static("tmp"));
 app.use("/api/v1/tasks/", authenticateJWT, MainTask);
 app.use("/api/v1/auth/", User);
 app.use("/api/v1/user", Habit);
