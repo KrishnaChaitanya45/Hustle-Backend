@@ -15,7 +15,7 @@ const createNewUser = async (req, res) => {
   const { email, password, username, name, bio, interests, targetTasks, upto } =
     req.body;
   let token;
-
+  console.log(req.file);
   try {
     const userExists = await UserModel.find({
       email: email,
@@ -28,8 +28,11 @@ const createNewUser = async (req, res) => {
     } else {
       try {
         try {
+          console.log("reached here");
           const profileImage = req.file.path;
+          console.log("reached here- 2");
           const hashedPassword = await bcrypt.hash(password, 16);
+          console.log("reached here- 3");
           const user = await UserModel.create({
             email,
             username,
@@ -41,15 +44,20 @@ const createNewUser = async (req, res) => {
             targetTasks,
             upto,
           });
+          console.log("reached here- 4");
           try {
+            console.log("reached here- 5");
             token = jwt.sign({ id: user._id }, process.env.SECRET);
             user.tokens = user.tokens.concat({ token: token });
+            console.log("reached here- 6");
             await user.save();
+            console.log("reached here- 7");
           } catch (error) {
             console.log(error);
             return error;
           }
           console.log(token);
+          console.log("reached here- 8");
           res.cookie("DearDiaryAuthentication", token);
           return res
             .status(201)
