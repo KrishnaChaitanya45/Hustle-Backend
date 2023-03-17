@@ -11,6 +11,7 @@ const getAllMainTasks = async (req, res) => {
 };
 
 const createNewUser = async (req, res) => {
+  console.log("request recieved");
   const { email, password, username, name, bio, interests, targetTasks, upto } =
     req.body;
   let token;
@@ -35,11 +36,10 @@ const createNewUser = async (req, res) => {
             bio,
             interests,
             password: hashedPassword,
-            profileImage,
+            profilePhoto: profileImage,
             targetTasks,
             upto,
           });
-
           try {
             token = jwt.sign({ id: user._id }, process.env.SECRET);
             user.tokens = user.tokens.concat({ token: token });
@@ -48,7 +48,6 @@ const createNewUser = async (req, res) => {
             console.log(error);
             return error;
           }
-
           console.log(token);
           res.cookie("DearDiaryAuthentication", token);
           return res
@@ -77,9 +76,7 @@ const createNewUser = async (req, res) => {
           }
           console.log(token);
           res.cookie("DearDiaryAuthentication", token);
-          return res
-            .status(201)
-            .json({ msg: "User Created..!", user: user, token: token });
+          return res.status(222).json({ msg: "Creation failed" });
         }
       } catch (error) {
         return res.status(500).json({ msg: error });

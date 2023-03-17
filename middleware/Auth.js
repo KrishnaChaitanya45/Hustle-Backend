@@ -2,7 +2,6 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const authenticateJWT = (req, res, next) => {
   const token = req.cookies.DearDiaryAuthentication;
-  console.log(token);
   if (token) {
     jwt.verify(token, process.env.SECRET, (err, user) => {
       if (err) {
