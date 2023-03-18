@@ -68,29 +68,35 @@ const createNewUser = async (req, res) => {
             .json({ msg: "User Created..!", user: user, token: token });
         } catch (error) {
           console.log("no image");
-          // const hashedPassword = await bcrypt.hash(password, 16);
-          // const user = await UserModel.create({
-          //   email,
-          //   username,
-          //   name,
-          //   bio,
-          //   interests,
-          //   password: hashedPassword,
-          //   upto,
-          // });
+          const hashedPassword = await bcrypt.hash(password, 16);
+          const user = await UserModel.create({
+            email,
+            username,
+            name,
+            bio,
+            interests,
+            password: hashedPassword,
+            upto,
+          });
 
-          // try {
-          //   token = jwt.sign({ id: user._id }, process.env.SECRET);
-          //   user.tokens = user.tokens.concat({ token: token });
-          //   user.target.targetTasks = targetTasks;
-          //   await user.save();
-          // } catch (error) {
-          //   console.log(error);
-          //   return error;
-          // }
-          // console.log(token);
-          // res.cookie("DearDiaryAuthentication", token);
-          return res.status(222).json({ msg: "User not Created" });
+          try {
+            token = jwt.sign({ id: user._id }, process.env.SECRET);
+            user.tokens = user.tokens.concat({ token: token });
+            user.target.targetTasks = targetTasks;
+            await user.save();
+          } catch (error) {
+            console.log(error);
+            return error;
+          }
+          console.log(token);
+          res.cookie("DearDiaryAuthentication", token);
+          return res
+            .status(222)
+            .json({
+              msg: "User Created with no image",
+              user: user,
+              token: token,
+            });
         }
       } catch (error) {
         return res.status(500).json({ msg: error });
