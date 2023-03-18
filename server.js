@@ -1,4 +1,5 @@
 const express = require("express");
+const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const path = require("path");
@@ -7,13 +8,18 @@ const MainTask = require("./router/GoalTracker/MainTasks");
 const Habit = require("./router/GoalTracker/Habits");
 const User = require("./router/User/User");
 const authenticateJWT = require("./middleware/Auth");
-const app = express();
+
 app.use(
   cors({
-    origin: "*",
+    origin: true,
     credentials: true,
   })
 );
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
 const multer = require("multer");
 require("dotenv").config();
 const cloudinary = require("cloudinary").v2;
