@@ -9,17 +9,8 @@ const Habit = require("./router/GoalTracker/Habits");
 const User = require("./router/User/User");
 const authenticateJWT = require("./middleware/Auth");
 
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
+app.use(cors());
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  next();
-});
 const multer = require("multer");
 require("dotenv").config();
 const cloudinary = require("cloudinary").v2;
