@@ -10,33 +10,13 @@ const authenticateJWT = require("./middleware/Auth");
 const app = express();
 const multer = require("multer");
 require("dotenv").config();
-const fileupload = require("express-fileupload");
-app.use(
-  fileupload({
-    useTempFiles: true,
-    tempFileDir: "/tmp",
-  })
-);
-app.use(cookieParser());
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "/tmp"); // we should create the  folder for uploads
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + "-" + file.originalname);
-  },
+const cloudinary = require("cloudinary").v2;
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-app.use(multer({ storage: storage }).single("image"));
 app.use(express.json());
-app.use(express.static(__dirname + "/tmp"));
-app.use("/tmp", express.static("tmp"));
 app.use("/api/v1/tasks/", authenticateJWT, MainTask);
 app.use("/api/v1/auth/", User);
 app.use("/api/v1/user", Habit);

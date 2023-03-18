@@ -1,8 +1,10 @@
 const UserModel = require("../../models/User/User");
 const MainTaskModel = require("../../models/GoalTracker/MainTask");
 const mongoose = require("mongoose");
+const cloudinary = require("cloudinary").v2;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const getDataURI = require("../../utils/DataURI");
 require("dotenv").config();
 const getAllMainTasks = async (req, res) => {
   const allMainTasks = await MainTaskModel.find({ createdBy: req.body.user });
@@ -29,7 +31,9 @@ const createNewUser = async (req, res) => {
       try {
         try {
           console.log("reached here");
-          const profileImage = req.file.path;
+          const image = getDataURI(req.file);
+          const image_url = await cloudinary.uploader.upload(image.content);
+
           console.log("reached here- 2");
           const hashedPassword = await bcrypt.hash(password, 16);
           console.log("reached here- 3");
@@ -40,7 +44,7 @@ const createNewUser = async (req, res) => {
             bio,
             interests,
             password: hashedPassword,
-            profilePhoto: profileImage,
+            profilePhoto: image_url.secure_url,
             targetTasks,
             upto,
           });
@@ -64,31 +68,29 @@ const createNewUser = async (req, res) => {
             .json({ msg: "User Created..!", user: user, token: token });
         } catch (error) {
           console.log("no image");
-          const hashedPassword = await bcrypt.hash(password, 16);
-          const user = await UserModel.create({
-            email,
-            username,
-            name,
-            bio,
-            interests,
-            password: hashedPassword,
-            upto,
-          });
+          // const hashedPassword = await bcrypt.hash(password, 16);
+          // const user = await UserModel.create({
+          //   email,
+          //   username,
+          //   name,
+          //   bio,
+          //   interests,
+          //   password: hashedPassword,
+          //   upto,
+          // });
 
-          try {
-            token = jwt.sign({ id: user._id }, process.env.SECRET);
-            user.tokens = user.tokens.concat({ token: token });
-            user.target.targetTasks = targetTasks;
-            await user.save();
-          } catch (error) {
-            console.log(error);
-            return error;
-          }
-          console.log(token);
-          res.cookie("DearDiaryAuthentication", token);
-          return res
-            .status(222)
-            .json({ msg: "User Created", user: user, token: token });
+          // try {
+          //   token = jwt.sign({ id: user._id }, process.env.SECRET);
+          //   user.tokens = user.tokens.concat({ token: token });
+          //   user.target.targetTasks = targetTasks;
+          //   await user.save();
+          // } catch (error) {
+          //   console.log(error);
+          //   return error;
+          // }
+          // console.log(token);
+          // res.cookie("DearDiaryAuthentication", token);
+          return res.status(222).json({ msg: "User not Created" });
         }
       } catch (error) {
         return res.status(500).json({ msg: error });
