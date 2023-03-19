@@ -32,7 +32,9 @@ const createNewUser = async (req, res) => {
         try {
           console.log("reached here");
           const image = getDataURI(req.file);
-          const image_url = await cloudinary.uploader.upload(image.content);
+          const image_url = await cloudinary.uploader.upload(image.content, {
+            public_id: `DearDiary/${username}/profileImage`,
+          });
 
           console.log("reached here- 2");
           const hashedPassword = await bcrypt.hash(password, 16);
@@ -90,13 +92,11 @@ const createNewUser = async (req, res) => {
           }
           console.log(token);
           res.cookie("DearDiaryAuthentication", token);
-          return res
-            .status(222)
-            .json({
-              msg: "User Created with no image",
-              user: user,
-              token: token,
-            });
+          return res.status(222).json({
+            msg: "User Created with no image",
+            user: user,
+            token: token,
+          });
         }
       } catch (error) {
         return res.status(500).json({ msg: error });
@@ -107,8 +107,60 @@ const createNewUser = async (req, res) => {
   }
 };
 const getUserInfo = async () => {};
-const updateUserProfile = async () => {};
+const updateUserProfile = async (req, res) => {
+  try {
+    const { id: userId } = req.params;
+
+    const { name, username, targetTasks, bio, interests } = req.body;
+    console.log("reached here - 1 ");
+    let user;
+    try {
+      const image = getDataURI(req.file);
+      console.log(image);
+      console.log("reached here - 2 image ");
+      const profilePhoto = await cloudinary.uploader.upload(image.content, {
+        public_id: `DearDiary/${username}/profileImage`,
+        overwrite: true,
+      });
+      console.log("reached here - 3 uploaded " + profilePhoto.secure_url);
+      user = await UserModel.findOneAndUpdate(
+        { _id: userId },
+        {
+          name: name,
+          username: username,
+          profilePhoto: profilePhoto.secure_url,
+          targetTasks,
+          bio: bio,
+          interests: interests,
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      console.log("reached here - 4 updated ");
+    } catch (error) {
+      console.log("reached here - 5 failed Image ");
+      user = await UserModel.findOneAndUpdate(
+        { _id: userId },
+        { name, username, targetTasks, bio, interests },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      console.log("reached here - 6 updated ");
+    }
+    return res
+      .status(200)
+      .json({ msg: "User Profile Updated Successfully", user: user });
+  } catch (error) {
+    console.log("Server Error");
+    return res.status(404).json({ msg: error });
+  }
+};
 
 module.exports = {
   createNewUser,
+  updateUserProfile,
 };
