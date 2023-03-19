@@ -8,7 +8,11 @@ const MainTask = require("./router/GoalTracker/MainTasks");
 const Habit = require("./router/GoalTracker/Habits");
 const User = require("./router/User/User");
 const authenticateJWT = require("./middleware/Auth");
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+  })
+);
 
 const multer = require("multer");
 require("dotenv").config();
