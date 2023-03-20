@@ -8,7 +8,6 @@ const getAllMainTasks = async (req, res) => {
 };
 const createMainTask = async (req, res) => {
   const userID = mongoose.Types.ObjectId(req.user);
-
   const {
     title,
     description,

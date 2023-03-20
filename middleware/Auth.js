@@ -2,7 +2,6 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const authenticateJWT = (req, res, next) => {
   const token = req.cookies.DearDiaryAuthentication;
-  console.log(token);
   if (token) {
     jwt.verify(token, process.env.SECRET, (err, user) => {
       if (err) {
@@ -12,7 +11,13 @@ const authenticateJWT = (req, res, next) => {
       next();
     });
   } else {
-    res.sendStatus(401);
+    const userId = req.params.userId;
+    if (userId) {
+      req.user = userId;
+      next();
+    } else {
+      return res.sendStatus(403);
+    }
   }
 };
 module.exports = authenticateJWT;

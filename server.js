@@ -23,7 +23,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 app.use(express.json());
-app.use("/api/v1/tasks/", authenticateJWT, MainTask);
+app.use("/api/v1/tasks/:userId", authenticateJWT, MainTask);
 app.use("/api/v1/auth/", User);
 app.use("/api/v1/user", Habit);
 
