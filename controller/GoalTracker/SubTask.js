@@ -21,7 +21,14 @@ const CreateSubTask = async (req, res) => {
 
   const subtaskId = mongoose.Types.ObjectId(req.params.id);
   const MainTask = await MainTaskModel.findById(subtaskId);
-  MainTask.pendingTasks.push(newSubTask);
+  if (status.toLowerCase() === "completed") {
+    newSubTask.completedAt = Date.now();
+    MainTask.completedTasks.push(newSubTask);
+  } else if (status.toLowerCase() === "working") {
+    MainTask.workingTasks.push(newSubTask);
+  } else if (status.toLowerCase() === "pending") {
+    MainTask.pendingTasks.push(newSubTask);
+  }
   MainTask.assignedTasks.push(newSubTask);
   MainTask.subtasks.push(newSubTask);
   await MainTask.save();
@@ -35,22 +42,25 @@ const updateSubTask = async (req, res) => {
 
   try {
     const Subtask = await SubTaskModel.findById(subtaskId);
-
+    console.log(Subtask);
     Subtask.title = title;
     Subtask.description = description;
     Subtask.starttime = starttime;
     Subtask.status = status.toLowerCase();
     console.log("Works Here");
     Subtask.deadline = deadline;
-    if (status.toLowerCase() === "completed") {
-      Subtask.completedAt = Date.now().toLocaleString();
-    }
     const MainTask = await MainTaskModel.findById(id);
     if (status.toLowerCase() === "completed") {
+      console.log("reached here");
+      Subtask.completedAt = Date.now();
       MainTask.completedTasks.push(MainTask);
+      console.log(MainTask.completedTasks);
+      console.log("reached here-1");
+      console.log("reached here-2");
       MainTask.pendingTasks = MainTask.pendingTasks.filter(
         (e) => e.toString() != subtaskId.toString()
       );
+      console.log("reached here-3");
       MainTask.workingTasks = MainTask.workingTasks.filter(
         (e) => e.toString() != subtaskId.toString()
       );

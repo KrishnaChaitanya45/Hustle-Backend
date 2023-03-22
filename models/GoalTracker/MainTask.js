@@ -64,6 +64,9 @@ const taskSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  start: {
+    type: Date,
+  },
   deadline: {
     type: Date,
   },
