@@ -1,8 +1,45 @@
 const { default: mongoose } = require("mongoose");
+const moment = require("moment");
 const MainTaskModel = require("../../models/GoalTracker/MainTask");
 const userModel = require("../../models/User/User");
 const getAllMainTasks = async (req, res) => {
   //DONE TODO: add a user middleware to add the user to the req object
+  const query = req.query;
+  if (query.status) {
+    const allMainTasks = await MainTaskModel.find({
+      createdBy: req.user,
+      status: query.status,
+    });
+    return res.status(200).json({ tasks: allMainTasks });
+  }
+  if (query.category) {
+    const allMainTasks = await MainTaskModel.find({
+      createdBy: req.user,
+      category: query.category,
+    });
+    return res.status(200).json({ tasks: allMainTasks });
+  }
+  if (query.todaysTasks) {
+    const allTasks = await MainTaskModel.find({
+      createdBy: req.user,
+    });
+    const todaysTasks = allTasks.filter((e) => {
+      let dates = [];
+      const startDate = moment(e.start);
+      const endDate = moment(e.deadline);
+      const today = moment().format("YYYY-MM-DD");
+      while (startDate.add(1, "days").diff(endDate) < 0) {
+        dates.push(moment(startDate).format("YYYY-MM-DD"));
+      }
+
+      console.log(dates.indexOf(today));
+      if (dates.includes(today)) {
+        console.log(e);
+        return e;
+      }
+    });
+    return res.status(200).json({ tasks: todaysTasks });
+  }
   const allMainTasks = await MainTaskModel.find({ createdBy: req.user });
   return res.status(200).json({ tasks: allMainTasks });
 };
@@ -15,6 +52,10 @@ const createMainTask = async (req, res) => {
     category,
     deadline,
     createdAt,
+    start,
+    startTime,
+    endTime,
+
     totalTime,
   } = req.body;
   const newMainTask = await MainTaskModel.create({
@@ -25,6 +66,9 @@ const createMainTask = async (req, res) => {
     createdAt,
     totalTime,
     category,
+    start,
+    startTime,
+    endTime,
     deadline,
   });
   //TODO setup middleware to add user to the req object
