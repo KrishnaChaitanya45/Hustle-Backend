@@ -82,8 +82,17 @@ const createMainTask = async (req, res) => {
 };
 const updateMainTask = async (req, res) => {
   const { id } = req.params;
-  const { title, description, status, category, deadline, createdAt } =
-    req.body;
+  let {
+    title,
+    description,
+    status,
+    category,
+    deadline,
+    startTime,
+    endTime,
+    start,
+  } = req.body;
+  status = status ? status : "pending";
   const MainTaskId = mongoose.Types.ObjectId(id);
 
   try {
@@ -93,7 +102,10 @@ const updateMainTask = async (req, res) => {
     MainTask.status = status.toLowerCase();
     MainTask.category = category;
     MainTask.deadline = deadline;
-    MainTask.createdAt = createdAt;
+    MainTask.start = start;
+    MainTask.startTime = startTime;
+    MainTask.endTime = endTime;
+
     if (status.toLowerCase() === "completed") {
       MainTask.completedAt = Date.now().toLocaleString();
     }
