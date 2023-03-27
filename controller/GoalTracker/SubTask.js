@@ -21,12 +21,12 @@ const CreateSubTask = async (req, res) => {
 
   const subtaskId = mongoose.Types.ObjectId(req.params.id);
   const MainTask = await MainTaskModel.findById(subtaskId);
-  if (status.toLowerCase() === "completed") {
+  if (newSubTask.status.toLowerCase() === "completed") {
     newSubTask.completedAt = Date.now();
     MainTask.completedTasks.push(newSubTask);
-  } else if (status.toLowerCase() === "working") {
+  } else if (newSubTask.status.toLowerCase() === "working") {
     MainTask.workingTasks.push(newSubTask);
-  } else if (status.toLowerCase() === "pending") {
+  } else if (newSubTask.status.toLowerCase() === "pending") {
     MainTask.pendingTasks.push(newSubTask);
   }
   MainTask.assignedTasks.push(newSubTask);
