@@ -30,6 +30,7 @@ const CreateSubTask = async (req, res) => {
     MainTask.pendingTasks.push(newSubTask);
   }
   MainTask.assignedTasks.push(newSubTask);
+  MainTask.status == "working";
   MainTask.subtasks.push(newSubTask);
   await MainTask.save();
 
