@@ -50,7 +50,8 @@ const updateSubTask = async (req, res) => {
     console.log("Works Here");
     Subtask.deadline = deadline;
     const MainTask = await MainTaskModel.findById(id);
-    if (status.toLowerCase() === "completed") {
+
+    if (Subtask.status.toLowerCase() === "completed") {
       console.log("reached here");
       Subtask.completedAt = Date.now();
       MainTask.completedTasks.push(MainTask);
@@ -64,12 +65,12 @@ const updateSubTask = async (req, res) => {
       MainTask.workingTasks = MainTask.workingTasks.filter(
         (e) => e.toString() != subtaskId.toString()
       );
-    } else if (status.toLowerCase() === "working") {
+    } else if (Subtask.status.toLowerCase() === "working") {
       MainTask.workingTasks.push(MainTask);
       MainTask.pendingTasks = MainTask.pendingTasks.filter(
         (e) => e.toString() != subtaskId.toString()
       );
-    } else if (status.toLowerCase() === "pending") {
+    } else if (Subtask.status.toLowerCase() === "pending") {
       MainTask.pendingTasks.push(MainTask);
       MainTask.workingTasks = MainTask.workingTasks.filter(
         (e) => e.toString() != subtaskId.toString()

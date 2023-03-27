@@ -1,8 +1,11 @@
 const mongoose = require("mongoose");
 const taskSchema = new mongoose.Schema(
   {
-    starttime: {
-      type: Date,
+    startTime: {
+      type: Number,
+    },
+    endTime: {
+      type: Number,
     },
     title: {
       type: String,
@@ -25,6 +28,9 @@ const taskSchema = new mongoose.Schema(
       type: String,
       enum: ["completed", "working", "pending", "timeexceeded"],
       default: "pending",
+    },
+    start: {
+      type: Date,
     },
     belongsTo: {
       type: mongoose.Schema.Types.ObjectId,
