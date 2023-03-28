@@ -51,7 +51,16 @@ const CreateSubTask = async (req, res) => {
 };
 const updateSubTask = async (req, res) => {
   const { taskId, id } = req.params;
-  const { title, description, status, deadline, starttime } = req.body;
+  const {
+    title,
+    description,
+    startTime,
+    status,
+    deadline,
+    endTime,
+    start,
+    duration,
+  } = req.body;
   const subtaskId = mongoose.Types.ObjectId(taskId);
 
   try {
@@ -59,7 +68,10 @@ const updateSubTask = async (req, res) => {
     console.log(Subtask);
     Subtask.title = title;
     Subtask.description = description;
-    Subtask.startTime = starttime;
+    Subtask.startTime = startTime;
+    Subtask.start = start;
+    Subtask.endTime = endTime;
+    Subtask.duration = duration;
     Subtask.status = status.toLowerCase();
     console.log("Works Here");
     Subtask.deadline = deadline;
