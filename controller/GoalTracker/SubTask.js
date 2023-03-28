@@ -9,12 +9,24 @@ const getAllSubTask = async (req, res) => {
   return res.status(200).json({ subtasks: allSubTasks });
 };
 const CreateSubTask = async (req, res) => {
-  const { title, description, starttime, status, deadline } = req.body;
+  const {
+    title,
+    description,
+    startTime,
+    status,
+    deadline,
+    endTime,
+    start,
+    duration,
+  } = req.body;
   const newSubTask = await SubTaskModel.create({
     title,
     description,
-    starttime,
+    startTime,
     status,
+    endTime,
+    start,
+    duration,
     belongsTo: req.params.id,
     deadline,
   });
