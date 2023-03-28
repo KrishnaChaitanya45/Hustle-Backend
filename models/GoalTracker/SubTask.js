@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 const taskSchema = new mongoose.Schema(
   {
     startTime: {
-      type: Number,
+      type: Object,
     },
     endTime: {
-      type: Number,
+      type: Object,
     },
     title: {
       type: String,
