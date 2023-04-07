@@ -16,6 +16,7 @@ const CreateSubTask = async (req, res) => {
     status,
     deadline,
     endTime,
+    progress,
     start,
     duration,
   } = req.body;
@@ -24,6 +25,7 @@ const CreateSubTask = async (req, res) => {
     description,
     startTime,
     status,
+    progress,
     endTime,
     start,
     duration,

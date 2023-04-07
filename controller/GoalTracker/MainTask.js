@@ -55,7 +55,7 @@ const createMainTask = async (req, res) => {
     start,
     startTime,
     endTime,
-
+    progress,
     totalTime,
   } = req.body;
   const newMainTask = await MainTaskModel.create({
@@ -66,6 +66,7 @@ const createMainTask = async (req, res) => {
     createdAt,
     totalTime,
     category,
+    progress,
     start,
     startTime,
     endTime,
