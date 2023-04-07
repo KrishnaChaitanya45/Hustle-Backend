@@ -68,12 +68,13 @@ const updateSubTask = async (req, res) => {
 
   try {
     const Subtask = await SubTaskModel.findById(subtaskId);
-    console.log(Subtask);
     Subtask.title = title;
     Subtask.description = description;
     Subtask.startTime = startTime;
     Subtask.start = start;
+    console.log("reached here..!");
     Subtask.progress = progress;
+
     Subtask.endTime = endTime;
     Subtask.duration = duration;
     Subtask.status = status.toLowerCase();
