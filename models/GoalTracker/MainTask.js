@@ -56,6 +56,9 @@ const taskSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    progress: {
+      type: Object,
+    },
     status: {
       type: String,
       enum: ["completed", "working", "pending", "timeexceeded"],
