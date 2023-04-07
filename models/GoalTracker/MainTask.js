@@ -57,7 +57,7 @@ const taskSchema = new mongoose.Schema(
       type: String,
     },
     progress: {
-      type: Object,
+      type: Array,
     },
     status: {
       type: String,

@@ -19,7 +19,7 @@ const taskSchema = new mongoose.Schema(
       default: Date.now(),
     },
     progress: {
-      type: Object,
+      type: Array,
     },
     duration: {
       type: Object,
