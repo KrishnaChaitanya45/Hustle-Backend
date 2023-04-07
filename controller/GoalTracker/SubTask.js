@@ -56,6 +56,7 @@ const updateSubTask = async (req, res) => {
     description,
     startTime,
     status,
+    progress,
     deadline,
     endTime,
     start,
@@ -70,6 +71,7 @@ const updateSubTask = async (req, res) => {
     Subtask.description = description;
     Subtask.startTime = startTime;
     Subtask.start = start;
+    Subtask.progress = progress;
     Subtask.endTime = endTime;
     Subtask.duration = duration;
     Subtask.status = status.toLowerCase();

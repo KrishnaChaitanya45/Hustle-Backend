@@ -89,6 +89,7 @@ const updateMainTask = async (req, res) => {
     category,
     deadline,
     startTime,
+    progress,
     endTime,
     start,
   } = req.body;
@@ -103,6 +104,7 @@ const updateMainTask = async (req, res) => {
     MainTask.category = category;
     MainTask.deadline = deadline;
     MainTask.start = start;
+    MainTask.progress = progress;
     MainTask.startTime = startTime;
     MainTask.endTime = endTime;
 
