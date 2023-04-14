@@ -54,32 +54,24 @@ const CreateSubTask = async (req, res) => {
 const updateSubTask = async (req, res) => {
   const { taskId, id } = req.params;
   const {
-    title,
-    description,
-    startTime,
-    status,
+ 
     progress,
-    deadline,
-    endTime,
-    start,
+
+ status,
     duration,
   } = req.body;
   const subtaskId = mongoose.Types.ObjectId(taskId);
-
+  console.log(progress);
   try {
     const Subtask = await SubTaskModel.findById(subtaskId);
-    Subtask.title = title;
-    Subtask.description = description;
-    Subtask.startTime = startTime;
-    Subtask.start = start;
+
     console.log("reached here..!");
     Subtask.progress = progress;
 
-    Subtask.endTime = endTime;
+
     Subtask.duration = duration;
     Subtask.status = status.toLowerCase();
     console.log("Works Here");
-    Subtask.deadline = deadline;
     const MainTask = await MainTaskModel.findById(id);
 
     if (Subtask.status.toLowerCase() === "completed") {
