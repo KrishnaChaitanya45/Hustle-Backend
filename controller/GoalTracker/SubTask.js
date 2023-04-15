@@ -60,7 +60,7 @@ const updateSubTask = async (req, res) => {
     progress,
     percentageWorked,
  status,
-    duration,
+    
   } = req.body;
   const subtaskId = mongoose.Types.ObjectId(taskId);
   console.log(progress);
@@ -71,7 +71,7 @@ const updateSubTask = async (req, res) => {
     Subtask.progress = progress;
 
    Subtask.percentageWorked = percentageWorked;
-    Subtask.duration = duration;
+  
     Subtask.status = status.toLowerCase();
     console.log("Works Here");
     const MainTask = await MainTaskModel.findById(id);
