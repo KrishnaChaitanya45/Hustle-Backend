@@ -14,6 +14,7 @@ const CreateSubTask = async (req, res) => {
     description,
     startTime,
     status,
+    percentageWorked,
     deadline,
     endTime,
     progress,
@@ -28,6 +29,7 @@ const CreateSubTask = async (req, res) => {
     progress,
     endTime,
     start,
+    percentageWorked,
     duration,
     belongsTo: req.params.id,
     deadline,
@@ -56,7 +58,7 @@ const updateSubTask = async (req, res) => {
   const {
  
     progress,
-
+    percentageWorked,
  status,
     duration,
   } = req.body;
@@ -68,7 +70,7 @@ const updateSubTask = async (req, res) => {
     console.log("reached here..!");
     Subtask.progress = progress;
 
-
+   Subtask.percentageWorked = percentageWorked;
     Subtask.duration = duration;
     Subtask.status = status.toLowerCase();
     console.log("Works Here");

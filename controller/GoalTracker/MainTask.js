@@ -52,6 +52,7 @@ const createMainTask = async (req, res) => {
     category,
     deadline,
     createdAt,
+    percentageWorked,
     start,
     startTime,
     endTime,
@@ -66,6 +67,7 @@ const createMainTask = async (req, res) => {
     createdAt,
     totalTime,
     category,
+    percentageWorked,
     progress,
     start,
     startTime,
@@ -90,6 +92,7 @@ const updateMainTask = async (req, res) => {
     category,
     deadline,
     startTime,
+    percentageWorked,
     progress,
     endTime,
     start,
@@ -108,7 +111,7 @@ const updateMainTask = async (req, res) => {
     MainTask.progress = progress;
     MainTask.startTime = startTime;
     MainTask.endTime = endTime;
-
+    MainTask.percentageWorked = percentageWorked;
     if (status.toLowerCase() === "completed") {
       MainTask.completedAt = Date.now().toLocaleString();
     }

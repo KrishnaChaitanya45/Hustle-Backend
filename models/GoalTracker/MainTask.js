@@ -10,6 +10,9 @@ const taskSchema = new mongoose.Schema(
     category: {
       type: String,
     },
+    percentageWorked:{
+      type: Number,
+    },
     assignedTasks: [
       {
         type: mongoose.Schema.Types.ObjectId,

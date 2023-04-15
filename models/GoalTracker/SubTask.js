@@ -10,6 +10,9 @@ const taskSchema = new mongoose.Schema(
     title: {
       type: String,
     },
+    percentageWorked:{
+      type: Number,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
