@@ -19,6 +19,34 @@ const getAllMainTasks = async (req, res) => {
     });
     return res.status(200).json({ tasks: allMainTasks });
   }
+  if (query.date) {
+    const allMainTasks = await MainTaskModel.find({
+      createdBy: req.user,
+    });
+    const todaysTasks = allTasks.filter((e) => {
+      let dates = [];
+      const startDate = moment(e.start);
+      const endDate = moment(e.deadline);
+      const today = moment(query.date).format("YYYY-MM-DD");
+      if (
+        moment(startDate).format("DD MM YYYY") ===
+        moment(endDate).format("DD MM YYYY")
+      )
+        dates.push(moment(startDate).format("YYYY-MM-DD"));
+      else {
+        while (startDate.add(1, "days").diff(endDate) < 0) {
+          dates.push(moment(startDate).format("YYYY-MM-DD"));
+        }
+      }
+
+      console.log(dates.indexOf(today));
+      if (dates.includes(today)) {
+        console.log(e);
+        return e;
+      }
+    });
+    return res.status(200).json({ tasks: todaysTasks });
+  }
   if (query.todaysTasks) {
     const allTasks = await MainTaskModel.find({
       createdBy: req.user,
