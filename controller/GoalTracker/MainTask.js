@@ -23,7 +23,7 @@ const getAllMainTasks = async (req, res) => {
     const allMainTasks = await MainTaskModel.find({
       createdBy: req.user,
     });
-    const todaysTasks = allTasks.filter((e) => {
+    const todaysTasks = allMainTasks.filter((e) => {
       let dates = [];
       const startDate = moment(e.start);
       const endDate = moment(e.deadline);
