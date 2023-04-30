@@ -10,7 +10,7 @@ const taskSchema = new mongoose.Schema(
     category: {
       type: String,
     },
-    percentageWorked:{
+    percentageWorked: {
       type: Number,
     },
     assignedTasks: [
@@ -75,10 +75,10 @@ const taskSchema = new mongoose.Schema(
       type: Date,
     },
     startTime: {
-      type: Number,
+      type: Object,
     },
     endTime: {
-      type: Number,
+      type: Object,
     },
     deadline: {
       type: Date,
