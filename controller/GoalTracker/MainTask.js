@@ -28,8 +28,15 @@ const getAllMainTasks = async (req, res) => {
       const startDate = moment(e.start);
       const endDate = moment(e.deadline);
       const today = moment().format("YYYY-MM-DD");
-      while (startDate.add(1, "days").diff(endDate) < 0) {
+      if (
+        moment(startDate).format("DD MM YYYY") ===
+        moment(endDate).format("DD MM YYYY")
+      )
         dates.push(moment(startDate).format("YYYY-MM-DD"));
+      else {
+        while (startDate.add(1, "days").diff(endDate) < 0) {
+          dates.push(moment(startDate).format("YYYY-MM-DD"));
+        }
       }
 
       console.log(dates.indexOf(today));
