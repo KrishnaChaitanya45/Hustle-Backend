@@ -25,8 +25,11 @@ const getAllMainTasks = async (req, res) => {
     });
     const todaysTasks = allMainTasks.filter((e) => {
       let dates = [];
-      const startDate = moment(e.start);
-      const endDate = moment(e.deadline);
+      console.log(e);
+      const startDate = moment(e.start).subtract(1, "days");
+      console.log("===START DATE===", startDate);
+      const endDate = moment(e.deadline).add(1, "days");
+      console.log("===END DATE===", endDate);
       const today = moment(query.date).format("YYYY-MM-DD");
       if (
         moment(startDate).format("DD MM YYYY") ===
@@ -38,8 +41,7 @@ const getAllMainTasks = async (req, res) => {
           dates.push(moment(startDate).format("YYYY-MM-DD"));
         }
       }
-
-      console.log(dates.indexOf(today));
+      console.log(dates);
       if (dates.includes(today)) {
         console.log(e);
         return e;
