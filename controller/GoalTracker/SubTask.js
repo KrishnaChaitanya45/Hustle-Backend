@@ -55,13 +55,7 @@ const CreateSubTask = async (req, res) => {
 };
 const updateSubTask = async (req, res) => {
   const { taskId, id } = req.params;
-  const {
- 
-    progress,
-    percentageWorked,
- status,
-    
-  } = req.body;
+  const { progress, percentageWorked, status } = req.body;
   const subtaskId = mongoose.Types.ObjectId(taskId);
   console.log(progress);
   try {
@@ -70,8 +64,8 @@ const updateSubTask = async (req, res) => {
     console.log("reached here..!");
     Subtask.progress = progress;
 
-   Subtask.percentageWorked = percentageWorked;
-  
+    Subtask.percentageWorked = percentageWorked;
+
     Subtask.status = status.toLowerCase();
     console.log("Works Here");
     const MainTask = await MainTaskModel.findById(id);
@@ -101,7 +95,9 @@ const updateSubTask = async (req, res) => {
         (e) => e.toString() != subtaskId.toString()
       );
     }
-
+    if (MainTask.assignedTasks.length === MainTask.completedTasks.length) {
+      MainTask.status = "completed";
+    }
     await MainTask.save();
     await Subtask.save();
 
