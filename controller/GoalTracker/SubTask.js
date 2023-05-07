@@ -48,6 +48,7 @@ const CreateSubTask = async (req, res) => {
     MainTask.pendingTasks.push(newSubTask);
   }
   MainTask.assignedTasks.push(newSubTask);
+  MainTask.totalTasks = MainTask.totalTasks + 1;
   MainTask.subtasks.push(newSubTask);
   await MainTask.save();
 
