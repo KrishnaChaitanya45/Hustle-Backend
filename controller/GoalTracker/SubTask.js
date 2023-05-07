@@ -97,6 +97,8 @@ const updateSubTask = async (req, res) => {
     }
     if (MainTask.assignedTasks.length === MainTask.completedTasks.length) {
       MainTask.status = "completed";
+    } else {
+      MainTask.status = "working";
     }
     await MainTask.save();
     await Subtask.save();
