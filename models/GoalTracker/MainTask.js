@@ -83,6 +83,9 @@ const taskSchema = new mongoose.Schema(
     deadline: {
       type: Date,
     },
+    points: {
+      type: Number,
+    },
     subtasks: [
       {
         task: {

@@ -10,7 +10,10 @@ const taskSchema = new mongoose.Schema(
     title: {
       type: String,
     },
-    percentageWorked:{
+    percentageWorked: {
+      type: Number,
+    },
+    points: {
       type: Number,
     },
     createdBy: {
