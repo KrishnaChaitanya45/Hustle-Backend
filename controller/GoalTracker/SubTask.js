@@ -1,5 +1,6 @@
 const SubTaskModel = require("../../models/GoalTracker/SubTask");
 const MainTaskModel = require("../../models/GoalTracker/MainTask");
+const moment = require("moment");
 const { default: mongoose } = require("mongoose");
 const getAllSubTask = async (req, res) => {
   const { id } = req.params;
@@ -56,7 +57,17 @@ const CreateSubTask = async (req, res) => {
 };
 const updateSubTask = async (req, res) => {
   const { taskId, id } = req.params;
-  const { progress, percentageWorked, status } = req.body;
+  const {
+    progress,
+    percentageWorked,
+    status,
+    points,
+    startTime,
+    startDate,
+    endTime,
+    endDate,
+    duration,
+  } = req.body;
   const subtaskId = mongoose.Types.ObjectId(taskId);
   console.log(progress);
   try {
@@ -85,6 +96,15 @@ const updateSubTask = async (req, res) => {
       MainTask.workingTasks = MainTask.workingTasks.filter(
         (e) => e.toString() != subtaskId.toString()
       );
+      /*
+        progess[0].startTime should be  +- 5 minutes of task Start Time AND task.completedAt should be +- 5 minutes of task.endTime, then 20 points
+        */
+
+      console.log("reached here-4");
+      if (moment(Date.now()).isBefore(endTime.toCalculate)) {
+        Subtask.points = points + 20;
+        MainTask.points = MainTask.points + 20;
+      }
     } else if (Subtask.status.toLowerCase() === "working") {
       MainTask.workingTasks.push(MainTask);
       MainTask.pendingTasks = MainTask.pendingTasks.filter(
