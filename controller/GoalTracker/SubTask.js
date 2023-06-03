@@ -118,20 +118,20 @@ const updateSubTask = async (req, res) => {
       let pointsThirdCheck = 0;
       const firstCheck =
         moment(startTime, "hh:mm A").isBefore(
-          moment(progress[0].startTime, "hh:mm A")
+          moment(progress[0].startTime.toCalculate, "hh:mm A")
         ) &&
         moment(endTime, "hh:mm A").isAfter(
-          moment(progress[0].endTime, "hh:mm A")
+          moment(progress[0].endTime.toCalculate, "hh:mm A")
         );
 
       const secondCheck =
-        moment(progress[0].startTime, "hh:mm A").isBefore(
+        moment(progress[0].startTime.toCalculate, "hh:mm A").isBefore(
           moment(startTime, "hh:mm A").add(
             (duration.hours * 60 + duration.minutes) / 2,
             "minutes"
           )
         ) &&
-        moment(progress[0].endTime, "hh:mm A").isBefore(
+        moment(progress[0].endTime.toCalculate, "hh:mm A").isBefore(
           moment(endTime, "hh:mm A").add(
             (duration.hours * 60 + duration.minutes) / 2,
             "minutes"
@@ -141,14 +141,12 @@ const updateSubTask = async (req, res) => {
       if (!firstCheck && !secondCheck) {
         thirdCheck = true;
         const minutesDiff =
-          moment(moment(progress[0].startTime, "hh:mm A").toISOString()).diff(
-            moment(startTime, "hh:mm A").toISOString(),
-            "minutes"
-          ) +
-          moment(moment(progress[0].endTime, "hh:mm A").toISOString()).diff(
-            moment(endTime, "hh:mm A").toISOString(),
-            "minutes"
-          );
+          moment(
+            moment(progress[0].startTime.toCalculate, "hh:mm A").toISOString()
+          ).diff(moment(startTime, "hh:mm A").toISOString(), "minutes") +
+          moment(
+            moment(progress[0].endTime.toCalculate, "hh:mm A").toISOString()
+          ).diff(moment(endTime, "hh:mm A").toISOString(), "minutes");
 
         console.log("=== MINUTES DIFF ===", minutesDiff);
         const percentage =
