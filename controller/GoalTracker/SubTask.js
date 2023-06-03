@@ -1,5 +1,6 @@
 const SubTaskModel = require("../../models/GoalTracker/SubTask");
 const MainTaskModel = require("../../models/GoalTracker/MainTask");
+const UserModel = require("../../models/User/User");
 const moment = require("moment");
 const { default: mongoose } = require("mongoose");
 const getAllSubTask = async (req, res) => {
@@ -71,7 +72,12 @@ const updateSubTask = async (req, res) => {
   const subtaskId = mongoose.Types.ObjectId(taskId);
   console.log(progress);
   try {
-    const Subtask = await SubTaskModel.findById(subtaskId);
+    let Subtask;
+    try {
+      Subtask = await SubTaskModel.findById(subtaskId);
+    } catch (error) {
+      console.log("== SUBTASK NOT FOUND ===");
+    }
 
     console.log("reached here..!");
     Subtask.progress = progress;
@@ -80,7 +86,19 @@ const updateSubTask = async (req, res) => {
 
     Subtask.status = status.toLowerCase();
     console.log("Works Here");
-    const MainTask = await MainTaskModel.findById(id);
+    let MainTask;
+    let user;
+    try {
+      MainTask = await MainTaskModel.findById(id);
+    } catch (error) {
+      return res.status(404).json({ msg: "MAIN TASK NOT FOUND" });
+    }
+    try {
+      console.log(MainTask.createdBy);
+      user = await UserModel.findById(MainTask.createdBy);
+    } catch (error) {
+      return res.status(404).json({ msg: "USER NOT FOUND" });
+    }
 
     if (Subtask.status.toLowerCase() === "completed") {
       console.log("reached here");
@@ -96,15 +114,90 @@ const updateSubTask = async (req, res) => {
       MainTask.workingTasks = MainTask.workingTasks.filter(
         (e) => e.toString() != subtaskId.toString()
       );
+      console.log("reached here-4");
+      let pointsThirdCheck = 0;
+      const firstCheck =
+        moment(startTime, "hh:mm A").isBefore(
+          moment(progress[0].startTime, "hh:mm A")
+        ) &&
+        moment(endTime, "hh:mm A").isAfter(
+          moment(progress[0].endTime, "hh:mm A")
+        );
+
+      const secondCheck =
+        moment(progress[0].startTime, "hh:mm A").isBefore(
+          moment(startTime, "hh:mm A").add(
+            (duration.hours * 60 + duration.minutes) / 2,
+            "minutes"
+          )
+        ) &&
+        moment(progress[0].endTime, "hh:mm A").isBefore(
+          moment(endTime, "hh:mm A").add(
+            (duration.hours * 60 + duration.minutes) / 2,
+            "minutes"
+          )
+        );
+      let thirdCheck = false;
+      if (!firstCheck && !secondCheck) {
+        thirdCheck = true;
+        const minutesDiff =
+          moment(moment(progress[0].startTime, "hh:mm A").toISOString()).diff(
+            moment(startTime, "hh:mm A").toISOString(),
+            "minutes"
+          ) +
+          moment(moment(progress[0].endTime, "hh:mm A").toISOString()).diff(
+            moment(endTime, "hh:mm A").toISOString(),
+            "minutes"
+          );
+
+        console.log("=== MINUTES DIFF ===", minutesDiff);
+        const percentage =
+          (minutesDiff / (duration.hours * 60 + duration.minutes)) * 100;
+        console.log("=== PERCENTAGE ===", percentage);
+        function returnPointsBasedOnPercentage(percentage) {
+          if (percentage >= 0 && percentage <= 25) {
+            return 15;
+          } else if (percentage > 25 && percentage <= 50) {
+            return 12;
+          } else if (percentage > 50 && percentage <= 75) {
+            return 9;
+          } else if (percentage > 75) {
+            return 5;
+          }
+        }
+        pointsThirdCheck = returnPointsBasedOnPercentage(percentage);
+      }
+
       /*
         progess[0].startTime should be  +- 5 minutes of task Start Time AND task.completedAt should be +- 5 minutes of task.endTime, then 20 points
         */
 
-      console.log("reached here-4");
-      if (moment(Date.now()).isBefore(endTime.toCalculate)) {
+      if (firstCheck) {
+        console.log("reached here first check -5");
         Subtask.points = points + 20;
+        console.log("reached here first check -6");
         MainTask.points = MainTask.points + 20;
+        console.log("reached here first check -7");
+        user.points = user.points + 20;
+        console.log(user.points, MainTask.points, Subtask.points);
+      } else if (secondCheck) {
+        console.log("reached here second check -5");
+        Subtask.points = points + 18;
+        console.log("reached here second check -6");
+        MainTask.points = MainTask.points + 18;
+        console.log("reached here second check -7");
+        user.points = user.points + 18;
+      } else if (thirdCheck) {
+        console.log("reached here second check -5");
+        Subtask.points = points + pointsThirdCheck;
+        console.log("reached here second check -6");
+        MainTask.points = MainTask.points + pointsThirdCheck;
+        console.log("reached here second check -7");
+        user.points = user.points + pointsThirdCheck;
       }
+      console.log("if completed");
+      console.log("MAIN TASK POINTS : ", MainTask.points);
+      console.log("SUB TASK POINTS : ", Subtask.points);
     } else if (Subtask.status.toLowerCase() === "working") {
       MainTask.workingTasks.push(MainTask);
       MainTask.pendingTasks = MainTask.pendingTasks.filter(
@@ -116,12 +209,15 @@ const updateSubTask = async (req, res) => {
         (e) => e.toString() != subtaskId.toString()
       );
     }
+    console.log("reached here-5");
     if (MainTask.assignedTasks.length === MainTask.completedTasks.length) {
       MainTask.status = "completed";
     } else {
       MainTask.status = "working";
     }
+    console.log("reached here-6");
     await MainTask.save();
+    console.log("reached here-7");
     await Subtask.save();
 
     return res.status(200).json({ msg: "Task Updated", task: Subtask });

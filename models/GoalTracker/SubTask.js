@@ -23,7 +23,6 @@ const taskSchema = new mongoose.Schema(
     },
     completedAt: {
       type: Date,
-      default: Date.now(),
     },
     progress: {
       type: Array,

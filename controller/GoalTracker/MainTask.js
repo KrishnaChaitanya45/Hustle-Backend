@@ -30,7 +30,8 @@ const getAllMainTasks = async (req, res) => {
       console.log("===START DATE===", startDate);
       const endDate = moment(e.deadline).add(1, "days");
       console.log("===END DATE===", endDate);
-      const today = moment(query.date).format("YYYY-MM-DD");
+      const today = moment(query.date).subtract(1, "days").format("YYYY-MM-DD");
+      console.log("===TODAY===", today);
       if (
         moment(startDate).format("DD MM YYYY") ===
         moment(endDate).format("DD MM YYYY")
