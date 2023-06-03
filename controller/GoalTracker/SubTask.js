@@ -116,82 +116,89 @@ const updateSubTask = async (req, res) => {
       );
       console.log("reached here-4");
       let pointsThirdCheck = 0;
-      const firstCheck =
-        moment(startTime, "hh:mm A").isBefore(
-          moment(progress[0].startTime.displayTime, "hh:mm A")
-        ) &&
-        moment(endTime, "hh:mm A").isAfter(
-          moment(progress[0].endTime.displayTime, "hh:mm A")
-        );
+      if (progress.length > 0) {
+        const firstCheck =
+          moment(startTime, "hh:mm A").isBefore(
+            moment(progress[0].startTime.displayTime, "hh:mm A")
+          ) &&
+          moment(endTime, "hh:mm A").isAfter(
+            moment(progress[0].endTime.displayTime, "hh:mm A")
+          );
 
-      const secondCheck =
-        moment(progress[0].startTime.displayTime, "hh:mm A").isBefore(
-          moment(startTime, "hh:mm A").add(
-            (duration.hours * 60 + duration.minutes) / 2,
-            "minutes"
-          )
-        ) &&
-        moment(progress[0].endTime.displayTime, "hh:mm A").isBefore(
-          moment(endTime, "hh:mm A").add(
-            (duration.hours * 60 + duration.minutes) / 2,
-            "minutes"
-          )
-        );
-      let thirdCheck = false;
-      if (!firstCheck && !secondCheck) {
-        thirdCheck = true;
-        const minutesDiff =
-          moment(
-            moment(progress[0].startTime.displayTime, "hh:mm A").toISOString()
-          ).diff(moment(startTime, "hh:mm A").toISOString(), "minutes") +
-          moment(
-            moment(progress[0].endTime.displayTime, "hh:mm A").toISOString()
-          ).diff(moment(endTime, "hh:mm A").toISOString(), "minutes");
+        const secondCheck =
+          moment(progress[0].startTime.displayTime, "hh:mm A").isBefore(
+            moment(startTime, "hh:mm A").add(
+              (duration.hours * 60 + duration.minutes) / 2,
+              "minutes"
+            )
+          ) &&
+          moment(progress[0].endTime.displayTime, "hh:mm A").isBefore(
+            moment(endTime, "hh:mm A").add(
+              (duration.hours * 60 + duration.minutes) / 2,
+              "minutes"
+            )
+          );
+        let thirdCheck = false;
+        if (!firstCheck && !secondCheck) {
+          thirdCheck = true;
+          const minutesDiff =
+            moment(
+              moment(progress[0].startTime.displayTime, "hh:mm A").toISOString()
+            ).diff(moment(startTime, "hh:mm A").toISOString(), "minutes") +
+            moment(
+              moment(progress[0].endTime.displayTime, "hh:mm A").toISOString()
+            ).diff(moment(endTime, "hh:mm A").toISOString(), "minutes");
 
-        console.log("=== MINUTES DIFF ===", minutesDiff);
-        const percentage =
-          (minutesDiff / (duration.hours * 60 + duration.minutes)) * 100;
-        console.log("=== PERCENTAGE ===", percentage);
-        function returnPointsBasedOnPercentage(percentage) {
-          if (percentage >= 0 && percentage <= 25) {
-            return 15;
-          } else if (percentage > 25 && percentage <= 50) {
-            return 12;
-          } else if (percentage > 50 && percentage <= 75) {
-            return 9;
-          } else if (percentage > 75) {
-            return 5;
+          console.log("=== MINUTES DIFF ===", minutesDiff);
+          const percentage =
+            (minutesDiff / (duration.hours * 60 + duration.minutes)) * 100;
+          console.log("=== PERCENTAGE ===", percentage);
+          function returnPointsBasedOnPercentage(percentage) {
+            if (percentage >= 0 && percentage <= 25) {
+              return 15;
+            } else if (percentage > 25 && percentage <= 50) {
+              return 12;
+            } else if (percentage > 50 && percentage <= 75) {
+              return 9;
+            } else if (percentage > 75) {
+              return 5;
+            }
           }
+          pointsThirdCheck = returnPointsBasedOnPercentage(percentage);
         }
-        pointsThirdCheck = returnPointsBasedOnPercentage(percentage);
-      }
 
-      /*
+        /*
         progess[0].startTime should be  +- 5 minutes of task Start Time AND task.completedAt should be +- 5 minutes of task.endTime, then 20 points
         */
 
-      if (firstCheck) {
-        console.log("reached here first check -5");
-        Subtask.points = points + 20;
-        console.log("reached here first check -6");
-        MainTask.points = MainTask.points + 20;
-        console.log("reached here first check -7");
-        user.points = user.points + 20;
-        console.log(user.points, MainTask.points, Subtask.points);
-      } else if (secondCheck) {
-        console.log("reached here second check -5");
-        Subtask.points = points + 18;
-        console.log("reached here second check -6");
-        MainTask.points = MainTask.points + 18;
-        console.log("reached here second check -7");
-        user.points = user.points + 18;
-      } else if (thirdCheck) {
-        console.log("reached here second check -5");
-        Subtask.points = points + pointsThirdCheck;
-        console.log("reached here second check -6");
-        MainTask.points = MainTask.points + pointsThirdCheck;
-        console.log("reached here second check -7");
-        user.points = user.points + pointsThirdCheck;
+        if (firstCheck) {
+          console.log("reached here first check -5");
+          Subtask.points = points + 20;
+          console.log("reached here first check -6");
+          MainTask.points = MainTask.points + 20;
+          console.log("reached here first check -7");
+          user.points = user.points + 20;
+          console.log(user.points, MainTask.points, Subtask.points);
+        } else if (secondCheck) {
+          console.log("reached here second check -5");
+          Subtask.points = points + 18;
+          console.log("reached here second check -6");
+          MainTask.points = MainTask.points + 18;
+          console.log("reached here second check -7");
+          user.points = user.points + 18;
+        } else if (thirdCheck) {
+          console.log("reached here second check -5");
+          Subtask.points = points + pointsThirdCheck;
+          console.log("reached here second check -6");
+          MainTask.points = MainTask.points + pointsThirdCheck;
+          console.log("reached here second check -7");
+          user.points = user.points + pointsThirdCheck;
+        }
+      } else {
+        console.log("direct complete task");
+        Subtask.points = points + 10;
+        MainTask.points = MainTask.points + 10;
+        user.points = user.points + 10;
       }
       console.log("if completed");
       console.log("MAIN TASK POINTS : ", MainTask.points);
