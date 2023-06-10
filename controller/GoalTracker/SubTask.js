@@ -122,20 +122,17 @@ const updateSubTask = async (req, res) => {
       if (progress.length > 0) {
         const firstCheck =
           moment(startTime, "hh:mm A").isBefore(
-            moment(progress[0].startTime.displayTime, "hh:mm A")
-          ) &&
-          moment(endTime, "hh:mm A").isAfter(
-            moment(progress[0].endTime.displayTime, "hh:mm A")
-          );
+            moment(progress[0].startTime)
+          ) && moment(endTime, "hh:mm A").isAfter(moment(progress[0].endTime));
 
         const secondCheck =
-          (moment(progress[0].startTime.displayTime, "hh:mm A").isBefore(
+          (moment(progress[0].startTime).isBefore(
             moment(startTime, "hh:mm A").add(10, "minutes")
           ) ||
-            moment(progress[0].startTime.displayTime, "hh:mm A").isBefore(
+            moment(progress[0].startTime).isBefore(
               moment(startTime, "hh:mm A").subtract(10, "minutes")
             )) &&
-          moment(progress[0].endTime.displayTime, "hh:mm A").isBefore(
+          moment(progress[0].endTime).isBefore(
             moment(endTime, "hh:mm A").add(
               (duration.hours * 60 + duration.minutes) / 2,
               "minutes"
@@ -145,12 +142,14 @@ const updateSubTask = async (req, res) => {
         if (!firstCheck && !secondCheck) {
           thirdCheck = true;
           const minutesDiff =
-            moment(
-              moment(progress[0].startTime.displayTime, "hh:mm A").toISOString()
-            ).diff(moment(startTime, "hh:mm A").toISOString(), "minutes") +
-            moment(
-              moment(progress[0].endTime.displayTime, "hh:mm A").toISOString()
-            ).diff(moment(endTime, "hh:mm A").toISOString(), "minutes");
+            moment(moment(progress[0].startTime).toISOString()).diff(
+              moment(startTime, "hh:mm A").toISOString(),
+              "minutes"
+            ) +
+            moment(moment(progress[0].endTime).toISOString()).diff(
+              moment(endTime, "hh:mm A").toISOString(),
+              "minutes"
+            );
 
           console.log("=== MINUTES DIFF ===", minutesDiff);
           const percentage =
