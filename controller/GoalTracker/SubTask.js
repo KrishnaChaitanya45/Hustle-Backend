@@ -227,7 +227,7 @@ const updateSubTask = async (req, res) => {
     await MainTask.save();
     console.log("reached here-7");
     await Subtask.save();
-
+    await user.save();
     return res.status(200).json({ msg: "Task Updated", task: Subtask });
   } catch (error) {
     return res.status(500).json({ msg: "Internal Server Error" });
