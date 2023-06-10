@@ -115,6 +115,9 @@ const updateSubTask = async (req, res) => {
         (e) => e.toString() != subtaskId.toString()
       );
       console.log("reached here-4");
+      console.log("=== PROGRESS ===", progress);
+      console.log("=== START TIME ===", startTime);
+      console.log("=== END TIME ===", endTime);
       let pointsThirdCheck = 0;
       if (progress.length > 0) {
         const firstCheck =
@@ -126,12 +129,12 @@ const updateSubTask = async (req, res) => {
           );
 
         const secondCheck =
-          moment(progress[0].startTime.displayTime, "hh:mm A").isBefore(
-            moment(startTime, "hh:mm A").add(
-              (duration.hours * 60 + duration.minutes) / 2,
-              "minutes"
-            )
-          ) &&
+          (moment(progress[0].startTime.displayTime, "hh:mm A").isBefore(
+            moment(startTime, "hh:mm A").add(10, "minutes")
+          ) ||
+            moment(progress[0].startTime.displayTime, "hh:mm A").isBefore(
+              moment(startTime, "hh:mm A").subtract(10, "minutes")
+            )) &&
           moment(progress[0].endTime.displayTime, "hh:mm A").isBefore(
             moment(endTime, "hh:mm A").add(
               (duration.hours * 60 + duration.minutes) / 2,
@@ -203,6 +206,7 @@ const updateSubTask = async (req, res) => {
       console.log("if completed");
       console.log("MAIN TASK POINTS : ", MainTask.points);
       console.log("SUB TASK POINTS : ", Subtask.points);
+      console.log("USER POINTS : ", user.points);
     } else if (Subtask.status.toLowerCase() === "working") {
       MainTask.workingTasks.push(MainTask);
       MainTask.pendingTasks = MainTask.pendingTasks.filter(
