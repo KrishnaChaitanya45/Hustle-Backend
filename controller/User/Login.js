@@ -47,6 +47,14 @@ const loginUser = async (req, res) => {
   }
 };
 // };
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await UserModel.find({});
+    return res.status(200).json({ users: users });
+  } catch (error) {
+    return res.status(500).json({ msg: "Error from the server" });
+  }
+}
 const getASingleUser = async (req, res) => {
   const token = req.params.id;
   const decoded = await jwt.verify(token, process.env.SECRET);
@@ -82,4 +90,5 @@ const getASingleUser = async (req, res) => {
 module.exports = {
   loginUser,
   getASingleUser,
+  getAllUsers
 };
