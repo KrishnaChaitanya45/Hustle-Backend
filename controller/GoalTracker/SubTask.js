@@ -44,6 +44,7 @@ const CreateSubTask = async (req, res) => {
   if (newSubTask.status.toLowerCase() === "completed") {
     newSubTask.completedAt = Date.now();
     MainTask.completedTasks.push(newSubTask);
+
   } else if (newSubTask.status.toLowerCase() === "working") {
     MainTask.workingTasks.push(newSubTask);
   } else if (newSubTask.status.toLowerCase() === "pending") {
@@ -104,6 +105,7 @@ const updateSubTask = async (req, res) => {
       console.log("reached here");
       Subtask.completedAt = Date.now();
       MainTask.completedTasks.push(MainTask);
+      user.completedTasks.push(MainTask);
       console.log(MainTask.completedTasks);
       console.log("reached here-1");
       console.log("reached here-2");
@@ -114,6 +116,13 @@ const updateSubTask = async (req, res) => {
       MainTask.workingTasks = MainTask.workingTasks.filter(
         (e) => e.toString() != subtaskId.toString()
       );
+      user.workingTasks = user.workingTasks.filter(
+        (e) => e.toString() != subtaskId.toString()
+      );
+      user.pendingTasks = UserModel.pendingTasks.filter(
+        (e) => e.toString() != subtaskId.toString()
+      );
+
       console.log("reached here-4");
       console.log("=== PROGRESS ===", progress);
       console.log("=== START TIME ===", startTime);
