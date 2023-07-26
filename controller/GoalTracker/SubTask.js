@@ -119,7 +119,7 @@ const updateSubTask = async (req, res) => {
       user.workingTasks = user.workingTasks.filter(
         (e) => e.toString() != subtaskId.toString()
       );
-      user.pendingTasks = UserModel.pendingTasks.filter(
+      user.pendingTasks = user.pendingTasks.filter(
         (e) => e.toString() != subtaskId.toString()
       );
 
