@@ -6,7 +6,7 @@ const habitSchema = new mongoose.Schema({
   habitIcon: {
     type: String,
     default:
-      "https://res.cloudinary.com/deardiary/image/upload/v1690529766/DearDiary/Habits/habits-default_n8ed6d.avif",
+      "https://res.cloudinary.com/deardiary/image/upload/c_pad,b_auto:predominant,fl_preserve_transparency/v1690560297/DearDiary/Habits/bike-riding_htmflg.jpg?_s=public-apps",
   },
   title: {
     type: String,
@@ -34,7 +34,10 @@ const habitSchema = new mongoose.Schema({
         default: "pending",
         //TODO set time to 24 hours or 84600000 milliseconds
       },
-      percentage: Number,
+      percentage: {
+        type: Number,
+        default: 0,
+      },
     },
   ],
   createdBy: {
