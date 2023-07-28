@@ -7,10 +7,10 @@ const habitSchema = new mongoose.Schema({
     type: String,
   },
   starttime: {
-    type: Date,
+    type: Object,
   },
   totalTime: {
-    type: Number,
+    type: Object,
   },
   description: {
     type: String,
@@ -22,8 +22,8 @@ const habitSchema = new mongoose.Schema({
       },
       status: {
         type: String,
-        enum: ["done", "failed"],
-        default: "failed",
+        enum: ["done", "failed", "pending"],
+        default: "pending",
         //TODO set time to 24 hours or 84600000 milliseconds
       },
     },
@@ -33,7 +33,7 @@ const habitSchema = new mongoose.Schema({
     ref: "User",
   },
   endtime: {
-    type: Date,
+    type: Object,
   },
 });
 
