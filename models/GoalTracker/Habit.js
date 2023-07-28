@@ -14,11 +14,14 @@ const habitSchema = new mongoose.Schema({
   starttime: {
     type: Object,
   },
-  totalTime: {
+  duration: {
     type: Object,
   },
   description: {
     type: String,
+  },
+  weeksSelected: {
+    type: Array,
   },
   dates: [
     {
@@ -37,7 +40,7 @@ const habitSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  endtime: {
+  endTime: {
     type: Object,
   },
 });
