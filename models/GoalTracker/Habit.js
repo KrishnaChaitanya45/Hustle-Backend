@@ -3,6 +3,11 @@ const habitSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
   },
+  habitIcon: {
+    type: String,
+    default:
+      "https://res.cloudinary.com/deardiary/image/upload/v1690529766/DearDiary/Habits/habits-default_n8ed6d.avif",
+  },
   title: {
     type: String,
   },
