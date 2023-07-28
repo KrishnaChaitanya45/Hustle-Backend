@@ -11,7 +11,7 @@ const habitSchema = new mongoose.Schema({
   title: {
     type: String,
   },
-  starttime: {
+  startTime: {
     type: Object,
   },
   duration: {
@@ -34,6 +34,7 @@ const habitSchema = new mongoose.Schema({
         default: "pending",
         //TODO set time to 24 hours or 84600000 milliseconds
       },
+      percentage: Number,
     },
   ],
   createdBy: {
