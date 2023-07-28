@@ -6,6 +6,6 @@ const {
 } = require("../../controller/GoalTracker/Habit");
 const router = express.Router();
 
-router.route("/habits/").post(createHabit).get(getHabits);
+router.route("/habits/:userId").post(createHabit).get(getHabits);
 router.route("/habits/:id").patch(updateHabit);
 module.exports = router;

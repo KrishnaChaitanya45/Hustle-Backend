@@ -35,7 +35,7 @@ const getHabits = async (req, res) => {
   if (req.user) {
     id = mongoose.Types.ObjectId(req.user);
   }
-  id = mongoose.Types.ObjectId(req.body.userId);
+  id = mongoose.Types.ObjectId(req.params.userId);
   const allHabits = await HabitModel.find({ createdBy: id });
   return res.status(200).json({ habits: allHabits });
 };
