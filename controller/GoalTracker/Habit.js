@@ -64,9 +64,22 @@ const updateHabit = async (req, res) => {
     });
 
     if (existingDay) {
-      existingDay.status = status;
-      existingDay.endTime = endTime;
-      existingDay.percentage = percentage;
+      let today;
+      try {
+        today = existingDay.dates.find(
+          (_) =>
+            moment(_.date).format("DD-MM-YYYY") == moment().format("DD-MM-YYYY")
+        );
+      } catch (error) {
+        return res.status(405).json({ msg: "UNABLE TO RESOLVE THE DATE" });
+      }
+      try {
+        today.status = status;
+        today.endTime = endTime;
+        today.percentage = percentage;
+      } catch (error) {
+        return res.status(500).json({ msg: "INTERNAL SERVER ERROR" });
+      }
     } else {
       habit[0].startTime = startTime;
       if (endTime) {
