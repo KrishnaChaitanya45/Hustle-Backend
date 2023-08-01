@@ -49,10 +49,14 @@ const updateHabit = async (req, res) => {
       userId = mongoose.Types.ObjectId(req.user);
     }
     const { id } = req.params;
-    const { status, date, percentage } = req.body;
+    const { status, date, percentage, startTime, endTime } = req.body;
     const habitId = mongoose.Types.ObjectId(id);
     userId = mongoose.Types.ObjectId(req.body.userId);
     const habit = await HabitModel.find({ _id: habitId, createdBy: userId });
+    if (!habit) {
+      return res.status(404).json({ msg: "Habit Not Found" });
+    }
+
     const existingDay = habit[0].dates.find((day) => {
       return (
         new Date(day.date).toDateString() === new Date(date).toDateString()
@@ -61,9 +65,14 @@ const updateHabit = async (req, res) => {
 
     if (existingDay) {
       existingDay.status = status;
-      existingDay.percentage = req.body.percentage;
+      existingDay.endTime = endTime;
+      existingDay.percentage = percentage;
     } else {
-      habit[0].dates.push({ date, status, percentage: req.body.percentage });
+      habit[0].startTime = startTime;
+      if (endTime) {
+        habit[0].endTime = endTime;
+      }
+      habit[0].dates.push({ date, status, percentage: percentage });
     }
 
     if (status === "completed") {
