@@ -49,7 +49,7 @@ const updateHabit = async (req, res) => {
       userId = mongoose.Types.ObjectId(req.user);
     }
     const { id } = req.params;
-    const { status, date } = req.body;
+    const { status, date, percentage } = req.body;
     const habitId = mongoose.Types.ObjectId(id);
     userId = mongoose.Types.ObjectId(req.body.userId);
     const habit = await HabitModel.find({ _id: habitId, createdBy: userId });
@@ -70,7 +70,7 @@ const updateHabit = async (req, res) => {
       habit[0].dates.push({
         date: Date.now(),
         status: "done",
-        percentage: 100,
+        percentage: percentage,
       });
     }
     await habit[0].save();
