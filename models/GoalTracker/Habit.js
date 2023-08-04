@@ -28,6 +28,12 @@ const habitSchema = new mongoose.Schema({
       date: {
         type: Date,
       },
+      startTime: {
+        type: Object,
+      },
+      endTime: {
+        type: Object,
+      },
       status: {
         type: String,
         enum: ["done", "failed", "pending"],
