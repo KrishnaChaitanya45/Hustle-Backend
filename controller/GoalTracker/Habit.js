@@ -4,7 +4,8 @@ const UserModel = require("../../models/User/User");
 const getDataURI = require("../../utils/DataURI");
 const cloudinary = require("cloudinary").v2;
 const createHabit = async (req, res) => {
-  let image, image_url;
+  let image,
+    image_url = undefined;
   try {
     const {
       title,
@@ -14,16 +15,23 @@ const createHabit = async (req, res) => {
       duration,
       endTime,
       createdBy,
+      imageFromBody,
       weeksSelected,
     } = req.body;
 
     const id = mongoose.Types.ObjectId(createdBy);
     const user = await UserModel.findById(id);
-    console.log(user);
-    image = getDataURI(req.file);
-    image_url = await cloudinary.uploader.upload(image.content, {
-      public_id: `DearDiary/${user.username}/HabitIcons/${title}`,
-    });
+    console.log(req.file);
+    if (req.file) {
+      try {
+        image = getDataURI(req.file);
+        image_url = await cloudinary.uploader.upload(image.content, {
+          public_id: `DearDiary/${user.username}/HabitIcons/${title}`,
+        });
+      } catch (error) {
+        return res.status(500).json({ msg: "IMAGE UPLOAD FAILED" });
+      }
+    }
 
     try {
       const newHabit = await HabitModel.create({
@@ -33,7 +41,7 @@ const createHabit = async (req, res) => {
         duration,
         status,
         endTime,
-        habitIcon: image_url.secure_url,
+        habitIcon: image_url ? image_url.secure_url : imageFromBody,
         weeksSelected,
         createdBy: id,
       });
@@ -45,7 +53,7 @@ const createHabit = async (req, res) => {
       return res.status(500).json({ msg: "Request Failed" });
     }
   } catch (error) {
-    return res.status(500).json({ msg: "IMAGE UPLOAD FAILED" });
+    return res.status(500).json({ msg: "REQUEST BODY INVALID" });
   }
 };
 const getHabits = async (req, res) => {
