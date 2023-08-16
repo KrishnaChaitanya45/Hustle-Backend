@@ -1,7 +1,10 @@
 const { default: mongoose } = require("mongoose");
 const HabitModel = require("../../models/GoalTracker/Habit");
 const UserModel = require("../../models/User/User");
+const getDataURI = require("../../utils/DataURI");
+const cloudinary = require("cloudinary").v2;
 const createHabit = async (req, res) => {
+  let image, image_url;
   try {
     const {
       title,
@@ -13,23 +16,36 @@ const createHabit = async (req, res) => {
       createdBy,
       weeksSelected,
     } = req.body;
+
     const id = mongoose.Types.ObjectId(createdBy);
-    const newHabit = await HabitModel.create({
-      title,
-      description,
-      startTime,
-      duration,
-      status,
-      endTime,
-      weeksSelected,
-      createdBy: id,
-    });
     const user = await UserModel.findById(id);
-    user.habits.push(newHabit);
-    await user.save();
-    return res.status(201).json({ msg: "Habit Created", habit: newHabit });
+    console.log(user);
+    image = getDataURI(req.file);
+    image_url = await cloudinary.uploader.upload(image.content, {
+      public_id: `DearDiary/${user.username}/HabitIcons/${title}`,
+    });
+
+    try {
+      const newHabit = await HabitModel.create({
+        title,
+        description,
+        startTime,
+        duration,
+        status,
+        endTime,
+        habitIcon: image_url.secure_url,
+        weeksSelected,
+        createdBy: id,
+      });
+      const user = await UserModel.findById(id);
+      user.habits.push(newHabit);
+      await user.save();
+      return res.status(201).json({ msg: "Habit Created", habit: newHabit });
+    } catch (error) {
+      return res.status(500).json({ msg: "Request Failed" });
+    }
   } catch (error) {
-    return res.status(500).json({ msg: "Request Failed" });
+    return res.status(500).json({ msg: "IMAGE UPLOAD FAILED" });
   }
 };
 const getHabits = async (req, res) => {
