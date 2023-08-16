@@ -23,14 +23,10 @@ const createHabit = async (req, res) => {
     const user = await UserModel.findById(id);
     console.log(req.file);
     if (req.file) {
-      try {
-        image = getDataURI(req.file);
-        image_url = await cloudinary.uploader.upload(image.content, {
-          public_id: `DearDiary/${user.username}/HabitIcons/${title}`,
-        });
-      } catch (error) {
-        return res.status(500).json({ msg: "IMAGE UPLOAD FAILED" });
-      }
+      image = getDataURI(req.file);
+      image_url = await cloudinary.uploader.upload(image.content, {
+        public_id: `DearDiary/${user.username}/HabitIcons/${title}`,
+      });
     }
 
     try {
