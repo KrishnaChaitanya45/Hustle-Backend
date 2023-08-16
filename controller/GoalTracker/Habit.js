@@ -21,7 +21,8 @@ const createHabit = async (req, res) => {
 
     const id = mongoose.Types.ObjectId(createdBy);
     const user = await UserModel.findById(id);
-    console.log(req.file);
+    console.log("== REQ FILE ==", req.file);
+    console.log("== REQ BODY ==", req.body);
     if (req.file) {
       try {
         image = getDataURI(req.file);
@@ -43,10 +44,10 @@ const createHabit = async (req, res) => {
       const newHabit = await HabitModel.create({
         title,
         description,
-        startTime,
-        duration,
+        startTime: JSON.parse(startTime),
+        duration: JSON.parse(duration),
         status,
-        endTime,
+        endTime: JSON.parse(endTime),
         habitIcon: image_url ? image_url.secure_url : imageFromBody,
         weeksSelected,
         createdBy: id,
