@@ -68,6 +68,12 @@ const UserSchema = new mongoose.Schema({
       expires: 1000 * 60 * 60 * 24,
     },
   },
+  friends: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   username: {
     type: String,
     unique: true,

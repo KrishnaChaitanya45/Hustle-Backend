@@ -120,10 +120,147 @@ const updateHabit = async (req, res) => {
   }
 };
 const deleteAHabit = async (req, res) => {};
+const addFriend = async (req, res) => {
+  const { userId } = req.params;
+  const { friendId } = req.body;
+  if (!userId || !friendId) {
+    return res.status(400).json({ msg: "Please provide userId and friendId" });
+  }
+  if (userId === friendId) {
+    return res.status(400).json({ msg: "You can't add yourself as a friend" });
+  }
+  try {
+    const friend = await UserModel.findById(friendId);
+    if (!friend) {
+      return res.status(404).json({ msg: "Friend Not Found" });
+    }
+    try {
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({ msg: "User Not Found" });
+      }
+      const userFriends = user.friends;
+      const friendExits = userFriends.find((friend) => {
+        return friend._id.toString() === friendId.toString();
+      });
+      if (friendExits) {
+        return res.status(400).json({ msg: "Friend Already Exists" });
+      }
+      user.friends.push(friend);
+      friend.friends.push(user);
+      await user.save();
+      await friend.save();
+      const friends = await UserModel.findById(userId).populate(
+        "friends",
+        "-password"
+      );
+      return res
+        .status(201)
+        .json({ msg: "Friend Added", friends: friends.friends });
+    } catch (error) {
+      return res.status(500).json({ msg: "Friend Addition failed" });
+    }
+  } catch (error) {
+    return res.status(500).json({ msg: "Fetching friend failed" });
+  }
+};
+const getAllFriends = async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(400).json({ msg: "Please provide userId" });
+  }
+  try {
+    const friends = await UserModel.findById(userId).populate(
+      "friends",
+      "-password"
+    );
+    return res
+      .status(200)
+      .json({ msg: "Friends Fetched", friends: friends.friends });
+  } catch (error) {
+    return res.status(500).json({ msg: "Fetching friends failed" });
+  }
+};
+const removeFriend = async (req, res) => {
+  const { friendId, userId } = req.params;
+  if (!userId || !friendId) {
+    return res.status(400).json({ msg: "Please provide userId and friendId" });
+  }
+  if (userId.toString() === friendId.toString()) {
+    return res.status(400).json({ msg: "You can't remove yourself" });
+  }
+  try {
+    const friend = await UserModel.findById(friendId);
+    if (!friend) {
+      return res.status(404).json({ msg: "Friend Not Found" });
+    }
+    try {
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({ msg: "User Not Found" });
+      }
+      const userFriends = user.friends;
+      const friendExits = userFriends.find((friend) => {
+        return friend.toString() === friendId.toString();
+      });
+      if (!friendExits) {
+        return res.status(400).json({ msg: "Friend Doesn't Exists" });
+      }
+      const filteredFriends = userFriends.filter((friend) => {
+        return friend._id.toString() !== friendId.toString();
+      });
+      user.friends = filteredFriends;
+      const filteredUser = friend.friends.filter((friend) => {
+        return friend._id.toString() !== userId.toString();
+      });
+      friend.friends = filteredUser;
+      await user.save();
+      await friend.save();
+      const friends = await UserModel.findById(userId).populate(
+        "friends",
+        "-password"
+      );
+      return res
+        .status(201)
+        .json({ msg: "Friend Removed", friends: friends.friends });
+    } catch (error) {
+      return res.status(500).json({ msg: "Friend Addition failed" });
+    }
+  } catch (error) {
+    return res.status(500).json({ msg: "Removing friend failed" });
+  }
+};
+const getFriend = async (req, res) => {
+  const { friendId, userId } = req.params;
+  if (!friendId || !userId) {
+    return res.status(400).json({ msg: "Please provide friendId and userId" });
+  }
+  try {
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ msg: "User Not Found" });
+    }
+    let friend = user.friends.find((friend) => {
+      return friend._id.toString() === friendId.toString();
+    });
+    if (!friend) {
+      return res.status(404).json({ msg: "Friend Not Found" });
+    }
+    friend = await UserModel.findById(userId).populate("friends", "-password");
+
+    return res.status(200).json({ msg: "Friend Fetched", friend });
+  } catch (error) {
+    return res.status(500).json({ msg: "Fetching friend failed" });
+  }
+};
 module.exports = {
   createHabit,
   getHabits,
   getAHabit,
+  addFriend,
+  getAllFriends,
   updateHabit,
+  getFriend,
+  removeFriend,
   deleteAHabit,
 };
