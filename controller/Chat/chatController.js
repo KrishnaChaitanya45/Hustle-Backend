@@ -48,6 +48,7 @@ const accessChat = asyncHandler(async (req, res) => {
     }
   }
 });
+
 const fetchChats = asyncHandler(async (req, res) => {
   try {
     if (!req.params.user)
@@ -55,18 +56,36 @@ const fetchChats = asyncHandler(async (req, res) => {
         .status(400)
         .json({ message: "User Id is not sent with the request" });
     //Get All the chats in which the req.user has been the part of
-    Chat.find({ users: { $elemMatch: { $eq: req.params.user } } })
-      .populate("users", "-password")
-      .populate("latestMessage")
-      .populate("groupAdmin", "-password")
-      .sort({ updatedAt: -1 })
-      .then(async (result) => {
-        result = await Chat.populate(result, {
-          path: "latestMessage.sender",
-          select: "username email profilePhoto",
+    if (req.query.onlyGroup) {
+      Chat.find({
+        users: { $elemMatch: { $eq: req.params.user } },
+        isGroup: true,
+      })
+        .populate("users", "-password")
+        .populate("latestMessage")
+        .populate("groupAdmin", "-password")
+        .sort({ updatedAt: -1 })
+        .then(async (result) => {
+          result = await Chat.populate(result, {
+            path: "latestMessage.sender",
+            select: "username email profilePhoto",
+          });
+          return res.status(200).send(result);
         });
-        res.status(200).send(result);
-      });
+    } else {
+      Chat.find({ users: { $elemMatch: { $eq: req.params.user } } })
+        .populate("users", "-password")
+        .populate("latestMessage")
+        .populate("groupAdmin", "-password")
+        .sort({ updatedAt: -1 })
+        .then(async (result) => {
+          result = await Chat.populate(result, {
+            path: "latestMessage.sender",
+            select: "username email profilePhoto",
+          });
+          return res.status(200).send(result);
+        });
+    }
   } catch (error) {
     console.log(error);
     return res
