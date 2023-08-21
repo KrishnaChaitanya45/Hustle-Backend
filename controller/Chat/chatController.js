@@ -70,6 +70,7 @@ const fetchChats = asyncHandler(async (req, res) => {
             path: "latestMessage.sender",
             select: "username email profilePhoto",
           });
+
           return res.status(200).send(result);
         });
     } else {
@@ -248,7 +249,7 @@ const addToGroupChat = asyncHandler(async (req, res) => {
         message: "Chat not found",
       });
     }
-    if (chat.users.includes(userId)) {
+    if (chat.users.findIndex((user) => user._id.toString() === userId) !== -1) {
       return res.status(400).json({
         message: "User already in the group",
       });
