@@ -111,7 +111,7 @@ const updateUserProfile = async (req, res) => {
   try {
     const { id: userId } = req.params;
 
-    const { name, username, targetTasks, bio, interests } = req.body;
+    const { name, username, targetTasks, bio, interests, password } = req.body;
     console.log("reached here - 1 ");
     let user;
     try {
@@ -128,6 +128,7 @@ const updateUserProfile = async (req, res) => {
         {
           name: name,
           username: username,
+          password: password && (await bcrypt.hash(password, 16)),
           profilePhoto: profilePhoto.secure_url,
           targetTasks,
           bio: bio,
@@ -143,7 +144,14 @@ const updateUserProfile = async (req, res) => {
       console.log("reached here - 5 failed Image ");
       user = await UserModel.findOneAndUpdate(
         { _id: userId },
-        { name, username, targetTasks, bio, interests },
+        {
+          name,
+          username,
+          targetTasks,
+          bio,
+          interests,
+          password: password && (await bcrypt.hash(password, 16)),
+        },
         {
           new: true,
           runValidators: true,

@@ -208,18 +208,18 @@ const removeFromGroupChat = asyncHandler(async (req, res) => {
     const chat = await Chat.findById(chatId);
 
     if (!chat) {
-      return res.status(400).json({
+      return res.status(404).json({
         message: "Chat not found",
       });
     }
 
     if (chat.groupAdmin.toString() !== req.params.user.toString()) {
-      return res.status(400).json({
+      return res.status(405).json({
         message: "You are not the admin of this group",
       });
     }
     if (chat.groupAdmin.toString() === userId.toString()) {
-      return res.status(400).json({
+      return res.status(404).json({
         message: "You cannot remove yourself from the group",
       });
     }

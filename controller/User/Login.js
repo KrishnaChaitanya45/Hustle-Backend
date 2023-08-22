@@ -1,6 +1,7 @@
 const UserModel = require("../../models/User/User");
 const MainTaskModel = require("../../models/GoalTracker/MainTask");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const { getOrSetRedis } = require("../../utils/Get_or_Set_Redis");
 const jwt = require("jsonwebtoken");
 // const redis = require("ioredis");
@@ -11,7 +12,6 @@ const jwt = require("jsonwebtoken");
 // });
 
 require("dotenv").config();
-const bcrypt = require("bcrypt");
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -43,7 +43,7 @@ const loginUser = async (req, res) => {
         .json({ msg: "Login Successful", user: user[0], token: token });
     }
   } catch (error) {
-    return res.status(500).json({ msg: "Error from the server" });
+    return res.status(404).json({ msg: "User Not Found", error });
   }
 };
 // };
@@ -54,7 +54,7 @@ const getAllUsers = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ msg: "Error from the server" });
   }
-}
+};
 const getASingleUser = async (req, res) => {
   const token = req.params.id;
   const decoded = await jwt.verify(token, process.env.SECRET);
@@ -87,8 +87,10 @@ const getASingleUser = async (req, res) => {
   // console.log(userData);
   // return res.status(200).json({ user: userData });
 };
+
 module.exports = {
   loginUser,
   getASingleUser,
-  getAllUsers
+
+  getAllUsers,
 };
