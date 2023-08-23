@@ -28,14 +28,19 @@ app.use("/api/v1/tasks/:userId", authenticateJWT, MainTask);
 app.use("/api/v1/auth/", User);
 app.use("/api/v1/user", Habit);
 app.use("/api/v1/chat", Chat);
-const io = require("socket.io")(server);
-
-io.on("connection", (socket) => {
-  console.log("connected");
-  socket.on("message", (message) => {
-    console.log(message);
-  });
-});
+// const io = require("socket.io")(server, {
+//   pingTimeout: 60000,
+//   cors: {
+//     origin: "*",
+//     methods: ["GET", "POST"],
+//   },
+// });
+// io.on("connection", (socket) => {
+//   console.log("connected");
+//   socket.on("message", (message) => {
+//     console.log(message);
+//   });
+// });
 const start = async () => {
   try {
     await connectToDatabase(process.env.MONGO_URI);
