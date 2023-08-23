@@ -14,7 +14,7 @@ app.use(
     credentials: true,
   })
 );
-
+let server;
 const multer = require("multer");
 require("dotenv").config();
 const cloudinary = require("cloudinary").v2;
@@ -28,14 +28,22 @@ app.use("/api/v1/tasks/:userId", authenticateJWT, MainTask);
 app.use("/api/v1/auth/", User);
 app.use("/api/v1/user", Habit);
 app.use("/api/v1/chat", Chat);
+const io = require("socket.io")(server);
+
+io.on("connection", (socket) => {
+  console.log("connected");
+  socket.on("message", (message) => {
+    console.log(message);
+  });
+});
 const start = async () => {
   try {
     await connectToDatabase(process.env.MONGO_URI);
     console.log("Connected to Database..!");
-    app.listen(4000);
+    server = app.listen(4000);
   } catch (error) {
     console.log("working offline..!");
-    app.listen(4000);
+    server = app.listen(4000);
   }
 };
 start();

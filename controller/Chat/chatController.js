@@ -73,6 +73,22 @@ const fetchChats = asyncHandler(async (req, res) => {
 
           return res.status(200).send(result);
         });
+    } else if (req.query.onlyPersonal) {
+      Chat.find({
+        users: { $elemMatch: { $eq: req.params.user } },
+        isGroup: false,
+      })
+        .populate("users", "-password")
+        .populate("latestMessage")
+        .populate("groupAdmin", "-password")
+        .sort({ updatedAt: -1 })
+        .then(async (result) => {
+          result = await Chat.populate(result, {
+            path: "latestMessage.sender",
+            select: "username email profilePhoto",
+          });
+          return res.status(200).send(result);
+        });
     } else {
       Chat.find({ users: { $elemMatch: { $eq: req.params.user } } })
         .populate("users", "-password")
