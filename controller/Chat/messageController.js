@@ -8,9 +8,15 @@ const User = require("../../models/User/User");
 const sendMessage = asyncHandler(async (req, res) => {
   const { message, chatId } = req.body;
   console.log(req.body);
-  if (!message || !chatId) {
+  if ((!req.file && !message) || !chatId) {
     return res.status(400).json({
       message: "Please send all the required fields",
+    });
+  }
+  const chat = await chatModel.findById(chatId);
+  if (!chat) {
+    return res.status(400).json({
+      message: "Chat not found",
     });
   }
   let image_url = null;
@@ -29,6 +35,7 @@ const sendMessage = asyncHandler(async (req, res) => {
   try {
     let message = await Message.create(newMessage);
     message = await message.populate("sender", "username profilePhoto email");
+    // console.log(message);
     message = await message.populate("chat");
     message = await User.populate(message, {
       path: "chat.users",
