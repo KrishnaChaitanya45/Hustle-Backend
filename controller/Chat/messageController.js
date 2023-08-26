@@ -62,7 +62,13 @@ const sendMessage = asyncHandler(async (req, res) => {
     try {
       const response = await getMessaging().sendEachForMulticast(messageToSend);
       console.log(response);
-      return res.status(201).send(message);
+      return res
+        .status(201)
+        .json({
+          msg: "MESSAGE SENT SUCESSFULLLY",
+          message: message,
+          response: response,
+        });
     } catch (error) {
       return res
         .status(500)
