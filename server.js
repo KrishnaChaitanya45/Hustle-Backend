@@ -133,10 +133,10 @@ const start = async () => {
   try {
     await connectToDatabase(process.env.MONGO_URI);
     console.log("Connected to Database..!");
-    server.listen(5000);
+    server.listen(5000, "0.0.0.0");
   } catch (error) {
     console.log("working offline..!");
-    server.listen(5000);
+    server.listen(5000, "0.0.0.0");
   }
 };
 start();
