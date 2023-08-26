@@ -59,12 +59,15 @@ const sendMessage = asyncHandler(async (req, res) => {
       },
       tokens: tokens,
     };
-    getMessaging()
-      .sendEachForMulticast(messageToSend)
-      .then((response) => {
-        return res.status(200).send(message);
-      })
-      .catch((err) => new Error("SENDING MESSAGE FAILED"));
+    try {
+      const response = await getMessaging().sendEachForMulticast(messageToSend);
+      console.log(response);
+      return res.status(201).send(message);
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ msg: "NOTIFICATION SENDING FAILED ", error });
+    }
   } catch (error) {
     console.log(error);
     res.status(500);
