@@ -4,6 +4,7 @@ const chatModel = require("../../models/Chat/chatModel");
 const cloudinary = require("cloudinary").v2;
 const getDataURI = require("../../utils/DataURI");
 require("dotenv").config();
+const { getMessaging } = require("firebase-admin/messaging");
 const User = require("../../models/User/User");
 const sendMessage = asyncHandler(async (req, res) => {
   const { message, chatId } = req.body;
@@ -39,11 +40,31 @@ const sendMessage = asyncHandler(async (req, res) => {
     message = await message.populate("chat");
     message = await User.populate(message, {
       path: "chat.users",
-      select: "username profilePhoto email",
+      select: "username profilePhoto email fcm_token",
     });
+    // console.log("=== Message === ", message.chat);
     await chatModel.findByIdAndUpdate(chatId, {
       latestMessage: message,
     });
+    const senderUser = message.sender.username;
+    const receiverTokens = message.chat.users.filter(
+      (user) => user._id != req.params.user
+    );
+    const tokens = receiverTokens.map((user) => user.fcm_token);
+    console.log(tokens);
+    const messageToSend = {
+      notification: {
+        title: senderUser + " has sent you a message",
+        body: message.message,
+      },
+      tokens: tokens,
+    };
+    getMessaging()
+      .sendEachForMulticast(messageToSend)
+      .then((response) => {
+        console.log("MESSAGE SENT SUCCESSFULLY", response);
+      })
+      .catch((err) => console.log("MESSAGE SENDING FAILED"));
     res.status(200).send(message);
   } catch (error) {
     console.log(error);
@@ -53,11 +74,13 @@ const sendMessage = asyncHandler(async (req, res) => {
 });
 const fetchMessages = asyncHandler(async (req, res) => {
   try {
-    const messages = await Message.find({
+    let messages = await Message.find({
       chat: req.params.chatId,
     })
       .populate("sender", "username profilePhoto email")
       .populate("chat");
+
+    console.log(messages[0]);
     res.status(200).send(messages);
   } catch (error) {
     console.log(error);

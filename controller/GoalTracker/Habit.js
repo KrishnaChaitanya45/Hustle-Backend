@@ -146,22 +146,119 @@ const addFriend = async (req, res) => {
       if (friendExits) {
         return res.status(400).json({ msg: "Friend Already Exists" });
       }
-      user.friends.push(friend);
-      friend.friends.push(user);
+      // user.friends.push(friend);
+      if (
+        friend.friendRequests.find(
+          (id) => id.from.toString() === userId.toString()
+        )
+      ) {
+        return;
+      }
+      friend.friendRequests.push({ from: userId, accepted: false });
+      console.log(friend.friendRequests);
       await user.save();
       await friend.save();
-      const friends = await UserModel.findById(userId).populate(
-        "friends",
-        "-password"
-      );
-      return res
-        .status(201)
-        .json({ msg: "Friend Added", friends: friends.friends });
+      // const friends = await UserModel.findById(userId).populate(
+      //   "friends",
+      //   "-password"
+      // );
+      // return res
+      //   .status(201)
+      //   .json({ msg: "Friend Added", friends: friends.friends });
+      return res.status(201).json({ msg: "Friend Request Sent" });
     } catch (error) {
       return res.status(500).json({ msg: "Friend Addition failed" });
     }
   } catch (error) {
     return res.status(500).json({ msg: "Fetching friend failed" });
+  }
+};
+
+const acceptOrRejectFriendRequest = async (req, res) => {
+  const { userId } = req.params;
+  const { requestId, DidTheReceiverAccept } = req.body;
+  if (!userId || !requestId) {
+    return res.status(400).json({ msg: "Please provide userId and friendId" });
+  }
+  console.log("REACHED HERE", userId, requestId, DidTheReceiverAccept);
+  try {
+    const user = await UserModel.findById(userId).populate(
+      "friendRequests.from",
+      "-password"
+    );
+    console.log("REACHED HERE - 2", user);
+    if (!user) {
+      return res.status(404).json({ msg: "User Not Found" });
+    }
+    if (!DidTheReceiverAccept) {
+      const filteredRequests = user.friendRequests.filter((request) => {
+        return request._id.toString() !== requestId.toString();
+      });
+      user.friendRequests = filteredRequests;
+      await user.save();
+      return res.status(201).json({ msg: "Friend Request Rejected" });
+    }
+    const friendRequest = user.friendRequests.find((friendRequest) => {
+      return friendRequest._id.toString() === requestId.toString();
+    });
+    console.log("REACHED HERE - 3", friendRequest);
+    if (!friendRequest) {
+      return res.status(404).json({ msg: "Friend Request Not Found" });
+    }
+    const friend = await UserModel.findById(friendRequest.from._id);
+    console.log("REACHED HERE - 4", friend);
+    if (!friend) {
+      return res.status(404).json({ msg: "Friend Not Found" });
+    }
+    const userFriends = user.friends;
+    const friendExits = userFriends.find((friend) => {
+      return friend._id.toString() === friendRequest.from._id.toString();
+    });
+    if (friendExits) {
+      return res.status(400).json({ msg: "Friend Already Exists" });
+    }
+    user.friends.push(friend);
+    friend.friends.push(user);
+    const filteredRequests = user.friendRequests.filter((request) => {
+      return request._id.toString() !== requestId.toString();
+    });
+    user.friendRequests = filteredRequests;
+    await user.save();
+
+    await friend.save();
+    const friends = await UserModel.findById(userId).populate(
+      "friends",
+      "-password"
+    );
+    return res
+      .status(201)
+      .json({ msg: "Friend Added", friends: friends.friends });
+  } catch (error) {
+    return res.status(500).json({ msg: "Fetching friend failed" });
+  }
+};
+
+const getFriendRequests = async (req, res) => {
+  const { userId } = req.params;
+  console.log("REACHED HERE", userId);
+  if (!userId) {
+    return res.status(400).json({ msg: "Please provide userId" });
+  }
+  try {
+    const user = await UserModel.findById(userId).populate(
+      "friendRequests.from",
+      "-password"
+    );
+    if (!user) {
+      return res.status(404).json({ msg: "User Not Found" });
+    }
+    const friendRequests = user.friendRequests;
+    console.log(friendRequests);
+    return res
+      .status(200)
+      .json({ msg: "Friend Requests Fetched", friendRequests });
+  } catch (error) {
+    return res.status(500).json({ msg: "Fetching friend requests failed" });
   }
 };
 const getAllFriends = async (req, res) => {
@@ -253,6 +350,18 @@ const getFriend = async (req, res) => {
     return res.status(500).json({ msg: "Fetching friend failed" });
   }
 };
+const getAllUsers = async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(400).json({ msg: "Please provide userId" });
+  }
+  try {
+    const users = await UserModel.find({ _id: { $ne: userId } });
+    return res.status(200).json({ msg: "Users Fetched", users });
+  } catch (error) {
+    return res.status(500).json({ msg: "Fetching users failed" });
+  }
+};
 module.exports = {
   createHabit,
   getHabits,
@@ -263,4 +372,7 @@ module.exports = {
   getFriend,
   removeFriend,
   deleteAHabit,
+  getAllUsers,
+  getFriendRequests,
+  acceptOrRejectFriendRequest,
 };

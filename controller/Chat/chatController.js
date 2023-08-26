@@ -6,11 +6,12 @@ const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
-  if (!userId) {
+  if (!userId || !req.params.user) {
     return res
       .status(400)
       .json({ message: "User Id  is not sent with the request" });
   }
+
   var isChat = await Chat.find({
     isGroup: false,
     $and: [
@@ -21,13 +22,13 @@ const accessChat = asyncHandler(async (req, res) => {
     .populate("users", "-password")
     .populate("latestMessage");
   //   console.log("=== IS CHAT ===", isChat);
-
+  console.log("== TRIED TO ACCESS THE CHAT ==", isChat);
   isChat = await userModel.populate(isChat, {
     path: "latestMessage.sender",
-    select: "username email",
+    select: "username profilePhoto email is_online",
   });
   if (isChat.length > 0) {
-    res.send(isChat[0]);
+    return res.status(200).send(isChat[0]);
   } else {
     var chatData = {
       chatName: "Personal Chat",
@@ -58,8 +59,12 @@ const fetchChats = asyncHandler(async (req, res) => {
     //Get All the chats in which the req.user has been the part of
     if (req.query.onlyGroup) {
       Chat.find({
-        users: { $elemMatch: { $eq: req.params.user } },
-        isGroup: true,
+        $and: [
+          {
+            users: { $elemMatch: { $eq: req.params.user } },
+          },
+          { isGroup: true },
+        ],
       })
         .populate("users", "-password")
         .populate("latestMessage")
@@ -68,15 +73,17 @@ const fetchChats = asyncHandler(async (req, res) => {
         .then(async (result) => {
           result = await Chat.populate(result, {
             path: "latestMessage.sender",
-            select: "username email profilePhoto",
+            select: "username email profilePhoto is_online",
           });
 
           return res.status(200).send(result);
         });
     } else if (req.query.onlyPersonal) {
       Chat.find({
-        users: { $elemMatch: { $eq: req.params.user } },
-        isGroup: false,
+        $and: [
+          { users: { $elemMatch: { $eq: req.params.user } } },
+          { isGroup: false },
+        ],
       })
         .populate("users", "-password")
         .populate("latestMessage")
@@ -85,8 +92,9 @@ const fetchChats = asyncHandler(async (req, res) => {
         .then(async (result) => {
           result = await Chat.populate(result, {
             path: "latestMessage.sender",
-            select: "username email profilePhoto",
+            select: "username email profilePhoto is_online",
           });
+          console.log(result);
           return res.status(200).send(result);
         });
     } else {
@@ -98,7 +106,7 @@ const fetchChats = asyncHandler(async (req, res) => {
         .then(async (result) => {
           result = await Chat.populate(result, {
             path: "latestMessage.sender",
-            select: "username email profilePhoto",
+            select: "username email profilePhoto is_online",
           });
           return res.status(200).send(result);
         });

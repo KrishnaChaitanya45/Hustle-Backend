@@ -78,6 +78,20 @@ const UserSchema = new mongoose.Schema({
     type: String,
     unique: true,
   },
+  fcm_token: {
+    type: String,
+    required: true,
+  },
+  is_online: {
+    type: Boolean,
+    default: false,
+  },
+  friendRequests: [
+    {
+      from: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      accepted: { type: Boolean, default: false },
+    },
+  ],
   tasks: [
     {
       task: {

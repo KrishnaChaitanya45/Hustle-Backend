@@ -14,7 +14,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, fcm_token } = req.body;
   // const user = await client.get(`user${email}`, async (err, data) => {
   //   if (err) throw err;
   //   if (data !== null) return JSON.parse(data);
@@ -38,6 +38,8 @@ const loginUser = async (req, res) => {
       const token = await user[0].generateAuthToken();
       // client.set(`user${email}`, JSON.stringify(user[0]));
       res.cookie("DearDiaryAuthentication", token);
+      user[0].fcm_token = fcm_token;
+      await user[0].save();
       return res
         .status(200)
         .json({ msg: "Login Successful", user: user[0], token: token });

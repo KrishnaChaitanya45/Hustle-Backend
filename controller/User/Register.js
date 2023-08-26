@@ -14,8 +14,17 @@ const getAllMainTasks = async (req, res) => {
 
 const createNewUser = async (req, res) => {
   console.log("request recieved");
-  const { email, password, username, name, bio, interests, targetTasks, upto } =
-    req.body;
+  const {
+    email,
+    password,
+    username,
+    name,
+    bio,
+    interests,
+    targetTasks,
+    upto,
+    fcm_token,
+  } = req.body;
   let token;
   console.log(req.file);
   try {
@@ -44,7 +53,9 @@ const createNewUser = async (req, res) => {
             username,
             name,
             bio,
+            is_online: true,
             interests,
+            fcm_token,
             password: hashedPassword,
             profilePhoto: image_url.secure_url,
             targetTasks,
@@ -76,6 +87,7 @@ const createNewUser = async (req, res) => {
             username,
             name,
             bio,
+            fcm_token,
             interests,
             password: hashedPassword,
             upto,
