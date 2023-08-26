@@ -53,22 +53,24 @@ const sendMessage = asyncHandler(async (req, res) => {
     const tokens = receiverTokens.map((user) => user.fcm_token);
     console.log(tokens);
     const messageToSend = {
-      notification: {
-        title: senderUser + " has sent you a message",
-        body: message.message,
+      android: {
+        notification: {
+          title: senderUser + " has sent you a message",
+          body: message.message,
+          icon: message.sender.profilePhoto,
+        },
       },
+
       tokens: tokens,
     };
     try {
       const response = await getMessaging().sendEachForMulticast(messageToSend);
       console.log(response);
-      return res
-        .status(201)
-        .json({
-          msg: "MESSAGE SENT SUCESSFULLLY",
-          message: message,
-          response: response,
-        });
+      return res.status(201).json({
+        msg: "MESSAGE SENT SUCESSFULLLY",
+        message: message,
+        response: response,
+      });
     } catch (error) {
       return res
         .status(500)
