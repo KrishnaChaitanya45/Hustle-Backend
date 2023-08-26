@@ -62,10 +62,9 @@ const sendMessage = asyncHandler(async (req, res) => {
     getMessaging()
       .sendEachForMulticast(messageToSend)
       .then((response) => {
-        console.log("MESSAGE SENT SUCCESSFULLY", response);
+        return res.status(200).send(message);
       })
-      .catch((err) => console.log("MESSAGE SENDING FAILED"));
-    res.status(200).send(message);
+      .catch((err) => new Error("SENDING MESSAGE FAILED"));
   } catch (error) {
     console.log(error);
     res.status(500);
