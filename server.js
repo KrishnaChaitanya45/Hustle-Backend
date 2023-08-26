@@ -39,6 +39,9 @@ app.use("/api/v1/user", Habit);
 app.use("/api/v1/chat", Chat);
 const io = require("socket.io")(server, {
   allowEIO3: true,
+  allowRequest: (req, callback) => {
+    callback(null, false);
+  },
   cors: {
     origin: "*",
   },
