@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const moment = require("moment");
 const taskSchema = new mongoose.Schema(
   {
     startTime: {
@@ -9,6 +10,9 @@ const taskSchema = new mongoose.Schema(
     },
     title: {
       type: String,
+    },
+    lastDateNotified: {
+      type: Object,
     },
     percentageWorked: {
       type: Number,

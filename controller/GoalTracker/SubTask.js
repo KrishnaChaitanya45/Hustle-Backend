@@ -30,6 +30,10 @@ const CreateSubTask = async (req, res) => {
     status,
     progress,
     endTime,
+    lastDateNotified: {
+      beforeHalfHour: moment().subtract(1, "day").toISOString(),
+      duringHabit: moment().subtract(1, "day").toISOString(),
+    },
     start,
     percentageWorked,
     duration,
@@ -44,7 +48,6 @@ const CreateSubTask = async (req, res) => {
   if (newSubTask.status.toLowerCase() === "completed") {
     newSubTask.completedAt = Date.now();
     MainTask.completedTasks.push(newSubTask);
-
   } else if (newSubTask.status.toLowerCase() === "working") {
     MainTask.workingTasks.push(newSubTask);
   } else if (newSubTask.status.toLowerCase() === "pending") {

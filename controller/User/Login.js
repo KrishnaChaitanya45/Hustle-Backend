@@ -59,6 +59,7 @@ const getAllUsers = async (req, res) => {
 };
 const getASingleUser = async (req, res) => {
   const token = req.params.id;
+  const deviceToken = req.params.token;
   const decoded = await jwt.verify(token, process.env.SECRET);
   const userId = decoded.id;
   const id = mongoose.Types.ObjectId(userId);
@@ -70,7 +71,8 @@ const getASingleUser = async (req, res) => {
   // try {
   try {
     const user = await UserModel.findById(id);
-
+    user.fcm_token = deviceToken;
+    await user.save();
     return res.status(200).json({ user: user });
   } catch (error) {
     return res.status(404).json({ msg: "User Not Found" });

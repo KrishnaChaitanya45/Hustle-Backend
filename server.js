@@ -4,10 +4,13 @@ const http = require("http");
 const server = http.createServer(app);
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const cron = require("node-cron");
 const path = require("path");
+const moment = require("moment");
 const { initializeApp, applicationDefault } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 const UserModal = require("./models/User/User");
+const habitsModal = require("./models/GoalTracker/Habit");
 const connectToDatabase = require("./db/connectToDb");
 const MainTask = require("./router/GoalTracker/MainTasks");
 const Habit = require("./router/GoalTracker/Habits");
@@ -23,6 +26,243 @@ process.env.GOOGLE_APPLICATION_CREDENTIALS;
 initializeApp({
   credential: applicationDefault(),
   projectId: "hustle-6ff85",
+});
+let notificationSent = [];
+console.log(notificationSent);
+const SubTask = require("./models/GoalTracker/SubTask");
+cron.schedule("* * * * *", async () => {
+  const currentTime = moment().toISOString();
+  const currentDay = moment().format("dddd");
+  console.log("REACHED HERE ..!");
+  const habits = await habitsModal.find({}).populate("createdBy", "-password");
+  let tasks;
+  tasks = await SubTask.find({}).populate({
+    path: "belongsTo",
+    populate: {
+      path: "createdBy",
+      model: "User",
+      select: "username email profilePhoto fcm_token",
+    },
+  });
+  tasks.forEach(async (task) => {
+    const todaysDate = moment();
+    const taskStartDate = moment(task.start);
+    const taskEndDate = moment(task.deadline).add(1, "day");
+    if (moment(todaysDate).isBetween(taskStartDate, taskEndDate)) {
+      const startTime = moment(task.startTime.displayTime, "hh:mm:A");
+      const difference = moment(startTime).diff(currentTime, "minutes");
+      console.log("REACHED HERE - 3 tASK", difference);
+      let messages = [];
+      if (
+        moment(task.lastDateNotified.beforeHalfHour).isBefore(
+          moment().toISOString()
+        )
+      ) {
+        if (difference <= 35 && difference >= 20) {
+          console.log("REACHED HERE ", task.weeksSelected);
+
+          messages.push({
+            title:
+              "Hey " +
+              task.belongsTo.createdBy.username +
+              `! Its time to work on ${task.belongsTo.title}`,
+            body: "You have to start " + task.title + " within half an hour..!",
+            sender: task.belongsTo.createdBy,
+          });
+        }
+      }
+      if (
+        moment(task.lastDateNotified.duringHabit).isBefore(
+          moment().toISOString()
+        )
+      ) {
+        if (difference <= 35 && difference >= 25) {
+          console.log("REACHED HERE ", task.weeksSelected);
+
+          messages.push({
+            title:
+              "Hey " +
+              task.belongsTo.createdBy.username +
+              `! Its time to work on ${task.belongsTo.title}`,
+            body: "You have to start " + task.title + " within half an hour..!",
+            sender: task.belongsTo.createdBy,
+          });
+        }
+      }
+      console.log(messages);
+      if (messages) {
+        messages.map(async (message) => {
+          const messageToSend = {
+            android: {
+              notification: {
+                title: message.title,
+                body: message.body,
+              },
+            },
+
+            token: message.sender.fcm_token,
+          };
+          try {
+            const response = await getMessaging().send(messageToSend);
+            console.log(response);
+            notificationSent.push(task._id);
+            if (difference <= 35 && difference >= 20) {
+              const modified = JSON.parse(
+                JSON.stringify(task.lastDateNotified)
+              );
+              modified.beforeHalfHour = moment(modified.beforeHalfHour)
+                .add(1, "day")
+                .toISOString();
+
+              task.lastDateNotified = modified;
+              await task.save();
+            }
+
+            if (difference <= 10 && difference >= 0) {
+              const modified = JSON.parse(
+                JSON.stringify(task.lastDateNotified)
+              );
+              modified.duringHabit = moment(modified.duringHabit)
+                .add(1, "day")
+                .toISOString();
+              console.log("MODIFIED", moment(modified.duringHabit).date());
+
+              task.lastDateNotified = modified;
+              await task.save();
+            }
+
+            console.log("NOTIFICATION SENT SUCCESSFULLY");
+          } catch (error) {
+            console.log("NOTIFICATION SENDING FAILED", error);
+          }
+        });
+      }
+    }
+  });
+
+  let habitsToNotify = [];
+  let messages = [];
+  habits.forEach(async (habit) => {
+    console.log(moment(habit.lastNotifiedDate.beforeOneHour).date());
+    console.log(moment(habit.lastNotifiedDate.beforeHalfHour).date());
+    console.log(moment(habit.lastNotifiedDate.duringHabit).date());
+
+    console.log("REACHED HERE - 2");
+    const startTime = moment(habit.startTime.displayTime, "hh:mm:A");
+    const difference = moment(startTime).diff(currentTime, "minutes");
+    console.log("REACHED HERE - 3", difference);
+
+    console.log(
+      "IS BEFORE",
+      moment(habit.lastNotifiedDate.beforeHalfHour).isBefore(
+        moment().toISOString()
+      )
+    );
+    if (
+      moment(habit.lastNotifiedDate.beforeHalfHour).isBefore(
+        moment().toISOString()
+      )
+    ) {
+      if (difference <= 35 && difference >= 25) {
+        console.log("REACHED HERE ", habit.weeksSelected);
+        if (habit.weeksSelected[0].split(",").find((w) => w == currentDay)) {
+          messages.push({
+            title: "Hey " + habit.createdBy.username + "!! You ready??🚀 ",
+            body:
+              "You have to start " + habit.title + " within half an hour..! ⏲️",
+            sender: habit.createdBy,
+          });
+
+          habitsToNotify.push(habit);
+        }
+      }
+    }
+    if (
+      moment(habit.lastNotifiedDate.beforeOneHour).isBefore(
+        moment().toISOString()
+      )
+    ) {
+      if (difference <= 65 && difference >= 55) {
+        console.log("REACHED HERE", habit.weeksSelected);
+        if (habit.weeksSelected[0].split(",").find((w) => w == currentDay)) {
+          messages.push({
+            title: "Hey " + habit.createdBy.username + "!! You ready ??🚀 ",
+            body: "You have to start " + habit.title + " within an hour ..! ⏲️",
+            sender: habit.createdBy,
+          });
+          habitsToNotify.push(habit);
+        }
+      }
+    }
+    if (moment(habit.lastNotifiedDate.duringHabit).date() < moment().date()) {
+      if (difference <= 10 && difference >= 0) {
+        console.log("REACHED HERE", habit.weeksSelected);
+        if (habit.weeksSelected[0].split(",").find((w) => w == currentDay)) {
+          messages.push({
+            title: "Hey " + habit.createdBy.username + "!! You ready ??🚀 ",
+            body: "You have to start " + habit.title + " shortly ..! ⏲️",
+            sender: habit.createdBy,
+          });
+          habitsToNotify.push(habit);
+        }
+      }
+    }
+    console.log(messages);
+
+    if (messages) {
+      messages.map(async (message) => {
+        const messageToSend = {
+          android: {
+            notification: {
+              title: message.title,
+              body: message.body,
+            },
+          },
+
+          token: message.sender.fcm_token,
+        };
+        try {
+          const response = await getMessaging().send(messageToSend);
+          console.log(response);
+          notificationSent.push(habit._id);
+          if (difference <= 65 && difference >= 55) {
+            const modified = JSON.parse(JSON.stringify(habit.lastNotifiedDate));
+            modified.beforeOneHour = moment(modified.beforeOneHour)
+              .add(1, "day")
+              .toISOString();
+
+            habit.lastNotifiedDate = modified;
+            await habit.save();
+          }
+          if (difference <= 35 && difference >= 25) {
+            const modified = JSON.parse(JSON.stringify(habit.lastNotifiedDate));
+            modified.beforeHalfHour = moment(modified.beforeHalfHour)
+              .add(1, "day")
+              .toISOString();
+            console.log("MODIFIED", modified);
+
+            habit.lastNotifiedDate = modified;
+            await habit.save();
+          }
+          if (difference <= 10 && difference >= 0) {
+            const modified = JSON.parse(JSON.stringify(habit.lastNotifiedDate));
+            modified.duringHabit = moment(modified.duringHabit)
+              .add(1, "day")
+              .toISOString();
+            console.log("MODIFIED", moment(modified.duringHabit).date());
+
+            habit.lastNotifiedDate = modified;
+            await habit.save();
+          }
+
+          console.log("NOTIFICATION SENT SUCCESSFULLY");
+        } catch (error) {
+          console.log("NOTIFICATION SENDING FAILED", error);
+        }
+      });
+    }
+  });
+  await habits.save();
 });
 const multer = require("multer");
 require("dotenv").config();

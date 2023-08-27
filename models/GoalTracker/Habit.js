@@ -23,6 +23,9 @@ const habitSchema = new mongoose.Schema({
   weeksSelected: {
     type: Array,
   },
+  lastNotifiedDate: {
+    type: Object,
+  },
   dates: [
     {
       date: {

@@ -3,6 +3,7 @@ const HabitModel = require("../../models/GoalTracker/Habit");
 const UserModel = require("../../models/User/User");
 const getDataURI = require("../../utils/DataURI");
 const cloudinary = require("cloudinary").v2;
+const moment = require("moment");
 const createHabit = async (req, res) => {
   let image,
     image_url = undefined;
@@ -47,6 +48,11 @@ const createHabit = async (req, res) => {
         startTime: JSON.parse(startTime),
         duration: JSON.parse(duration),
         status,
+        lastNotifiedDate: {
+          beforeHalfHour: moment().subtract(1, "day").toISOString(),
+          beforeOneHour: moment().subtract(1, "day").toISOString(),
+          duringHabit: moment().subtract(1, "day").toISOString(),
+        },
         endTime: JSON.parse(endTime),
         habitIcon: image_url ? image_url.secure_url : imageFromBody,
         weeksSelected,
@@ -57,9 +63,11 @@ const createHabit = async (req, res) => {
       await user.save();
       return res.status(201).json({ msg: "Habit Created", habit: newHabit });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ msg: "Request Failed" });
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ msg: "REQUEST BODY INVALID" });
   }
 };
