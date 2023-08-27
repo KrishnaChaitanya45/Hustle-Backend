@@ -52,6 +52,12 @@ cron.schedule("* * * * *", async () => {
       const startTime = moment(task.startTime.displayTime, "hh:mm:A");
       const difference = moment(startTime).diff(currentTime, "minutes");
       console.log("REACHED HERE - 3 tASK", difference);
+      console.log(
+        "NOTIFICATOIN",
+        moment(task.lastDateNotified.duringHabit).isBefore(
+          moment().toISOString()
+        )
+      );
       let messages = [];
       if (
         moment(task.lastDateNotified.beforeHalfHour).isBefore(
@@ -76,9 +82,7 @@ cron.schedule("* * * * *", async () => {
           moment().toISOString()
         )
       ) {
-        if (difference <= 35 && difference >= 25) {
-          console.log("REACHED HERE ", task.weeksSelected);
-
+        if (difference <= 10 && difference >= 0) {
           messages.push({
             title:
               "Hey " +
